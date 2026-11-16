@@ -33,10 +33,26 @@ const roadMat=new THREE.MeshStandardMaterial({color:0x303b40,roughness:.92});
 const lineMat=new THREE.MeshStandardMaterial({color:0xe7d6a0,roughness:.8});
 const sidewalkMat=new THREE.MeshStandardMaterial({color:0xb9b4a2,roughness:1});
 function road(points,width=22){
- const curve=new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(p[0],-.5,p[1])));
- const geo=new THREE.TubeGeometry(curve,Math.max(80,points.length*18),width/2,8,false);
- const mesh=new THREE.Mesh(geo,roadMat);mesh.receiveShadow=true;scene.add(mesh);
- const edge=new THREE.Mesh(new THREE.TubeGeometry(curve,Math.max(80,points.length*18),width/2+2.1,8,false),sidewalkMat);edge.position.y=-.35;scene.add(edge);
+ const curve=new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(p[0],-.15,p[1])));
+ const segments=Math.max(100,points.length*24);
+ function ribbon(halfWidth,y,material){
+  const positions=[],uv=[],indices=[];
+  for(let i=0;i<=segments;i++){
+   const t=i/segments,p=curve.getPointAt(t),tangent=curve.getTangentAt(t);
+   const side=new THREE.Vector3(-tangent.z,0,tangent.x).normalize();
+   const left=p.clone().addScaledVector(side,halfWidth);const right=p.clone().addScaledVector(side,-halfWidth);
+   left.y=y;right.y=y;
+   positions.push(left.x,left.y,left.z,right.x,right.y,right.z);uv.push(0,t*8,1,t*8);
+   if(i<segments){const n=i*2;indices.push(n,n+1,n+2,n+1,n+3,n+2);}
+  }
+  const geometry=new THREE.BufferGeometry();
+  geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+  geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+  geometry.setIndex(indices);geometry.computeVertexNormals();
+  const mesh=new THREE.Mesh(geometry,material);mesh.receiveShadow=true;scene.add(mesh);
+ }
+ ribbon(width/2+2.5,-.36,sidewalkMat);
+ ribbon(width/2,-.12,roadMat);
 }
 const boulevard=[[-3600,-500],[-2700,-650],[-1700,-550],[-700,-700],[400,-520],[1500,-650],[2600,-500],[3500,-250]];
 road(boulevard,34);
