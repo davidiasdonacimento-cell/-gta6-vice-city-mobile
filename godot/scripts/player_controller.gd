@@ -11,6 +11,8 @@ func _ready() -> void:
 	camera_pivot = get_node_or_null("CameraPivot")
 
 func _physics_process(delta: float) -> void:
+	if camera_pivot == null:
+		camera_pivot = get_node_or_null("CameraPivot")
 	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	if mobile_direction.length() > 0.08:
 		input = mobile_direction
