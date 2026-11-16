@@ -52,7 +52,7 @@ func _build_island_and_ocean() -> void:
 	var land_mesh := PlaneMesh.new()
 	land_mesh.size = Vector2(CITY_SPAN + 80.0, CITY_SPAN + 80.0)
 	island.mesh = land_mesh
-	island.position.y = -0.42
+	island.position.y = -0.27
 	island.material_override = _mat(Color("#927f67"), 1.0)
 	add_child(island)
 
@@ -72,7 +72,7 @@ func _build_island_and_ocean() -> void:
 	var ground_box := BoxShape3D.new()
 	ground_box.size = Vector3(CITY_SPAN + 80.0, 0.5, CITY_SPAN + 80.0)
 	ground_shape.shape = ground_box
-	ground_shape.position.y = -0.68
+	ground_shape.position.y = -0.52
 	ground_body.add_child(ground_shape)
 	add_child(ground_body)
 
@@ -134,7 +134,7 @@ func _build_city_blocks() -> void:
 func _create_tower(location: Vector3, radius: float, height: float, facade_color: Color, style: int) -> void:
 	var tower := StaticBody3D.new()
 	tower.name = "ArtDecoTower"
-	tower.position = Vector3(location.x, height * 0.5, location.z)
+	tower.position = Vector3(location.x, height * 0.5 - 0.27, location.z)
 	add_child(tower)
 
 	var collision := CollisionShape3D.new()
@@ -206,7 +206,7 @@ func _add_shop_sign(parent: Node3D, radius: float, height: float, facade_color: 
 func _build_waterfront() -> void:
 	var promenade := _mat(Color("#d9c8a6"), 0.8)
 	_add_plane("OceanPromenade", Vector2(620.0, 14.0), Vector3(0, -0.16, 282.0), promenade)
-	_add_plane("BeachSand", Vector2(620.0, 30.0), Vector3(0, -0.34, 305.0), _mat(Color("#d8bd8b"), 1.0))
+	_add_plane("BeachSand", Vector2(620.0, 30.0), Vector3(0, -0.25, 305.0), _mat(Color("#d8bd8b"), 1.0))
 	_add_plane("MarinaPier", Vector2(96.0, 5.0), Vector3(160.0, 0.0, 326.0), _mat(Color("#9c7957"), 0.9))
 	for pier_x in [-270.0, -180.0, -90.0, 0.0, 90.0, 180.0, 270.0]:
 		_add_plane("WaterfrontPaving", Vector2(2.4, 11.0), Vector3(pier_x, -0.08, 282.0), promenade)
@@ -236,7 +236,7 @@ func _create_palm_multimeshes(locations: Array[Vector3]) -> void:
 	trunk_batch.instance_count = locations.size()
 	for index in range(locations.size()):
 		var location: Vector3 = locations[index]
-		trunk_batch.set_instance_transform(index, Transform3D(Basis.IDENTITY, Vector3(location.x, 2.7, location.z)))
+		trunk_batch.set_instance_transform(index, Transform3D(Basis.IDENTITY, Vector3(location.x, 2.43, location.z)))
 	var trunks := MultiMeshInstance3D.new()
 	trunks.name = "PalmTrunks_Batched"
 	trunks.multimesh = trunk_batch
@@ -255,7 +255,7 @@ func _create_palm_multimeshes(locations: Array[Vector3]) -> void:
 		for frond_index in range(7):
 			var angle := TAU * float(frond_index) / 7.0
 			var scale_basis := Basis(Vector3.UP, -angle).scaled(Vector3(0.25, 0.10, 1.65))
-			var leaf_position := Vector3(location.x + cos(angle) * 0.78, 5.05, location.z + sin(angle) * 0.78)
+			var leaf_position := Vector3(location.x + cos(angle) * 0.78, 4.78, location.z + sin(angle) * 0.78)
 			leaf_batch.set_instance_transform(leaf_index, Transform3D(scale_basis, leaf_position))
 			leaf_index += 1
 	var leaves := MultiMeshInstance3D.new()
@@ -270,7 +270,7 @@ func _build_street_furniture() -> void:
 		for side in [-1.0, 1.0]:
 			var lamp := Node3D.new()
 			lamp.name = "BoulevardLamp"
-			lamp.position = Vector3(coordinate + side * 13.5, 0.0, -190.0 + float(road_index + 3) * 5.0)
+			lamp.position = Vector3(coordinate + side * 13.5, -0.27, -190.0 + float(road_index + 3) * 5.0)
 			add_child(lamp)
 			var pole := MeshInstance3D.new()
 			var pole_mesh := CylinderMesh.new()
