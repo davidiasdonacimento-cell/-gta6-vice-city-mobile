@@ -210,11 +210,11 @@ func _process(_delta: float) -> void:
 func _on_move_changed(value: Vector2) -> void:
 	if car != null and bool(car.get("is_driving")):
 		car.set("mobile_input", value)
-		player.mobile_direction = Vector2.ZERO
+		player.set("mobile_direction", Vector2.ZERO)
 	else:
 		if car != null:
 			car.set("mobile_input", Vector2.ZERO)
-		player.mobile_direction = value
+		player.set("mobile_direction", value)
 
 func _set_mobile_brake(pressed: bool) -> void:
 	if car != null and bool(car.get("is_driving")):
@@ -252,4 +252,4 @@ func _exit_tree() -> void:
 	if car != null and bool(car.get("is_driving")):
 		car.call("exit_vehicle")
 	if player:
-		player.mobile_direction = Vector2.ZERO
+		player.set("mobile_direction", Vector2.ZERO)
