@@ -75,7 +75,7 @@ func _setup_camera() -> void:
 	spring.add_child(camera)
 
 func _setup_car() -> void:
-	var car: VehicleBody3D = CAR_SCRIPT.new()
+	var car := CAR_SCRIPT.new() as VehicleBody3D
 	car.name = "Car"
 	car.position = Vector3(12.0, 0.15, 20.0)
 	add_child(car)
