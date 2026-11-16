@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/player_controller.gd" id="2"]
 
 [node name="ViceCity" type="Node3D"]
 script = ExtResource("1")
@@ -14,3 +15,4 @@ shadow_enabled = true
 
 [node name="Player" type="CharacterBody3D" parent="."]
 position = Vector3(12, 1, 12)
+script = ExtResource("2")
