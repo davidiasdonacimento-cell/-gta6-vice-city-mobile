@@ -14,6 +14,7 @@ var palm_material: StandardMaterial3D
 var trunk_material: StandardMaterial3D
 var lamp_material: StandardMaterial3D
 var imported_tree_models: Array[Node] = []
+var imported_bush_model: Node
 
 func _ready() -> void:
 	rng.seed = 24681357
@@ -295,6 +296,7 @@ func _build_asset_parks() -> void:
 		var source := _load_embedded_glb(path)
 		if source != null:
 			imported_tree_models.append(source)
+	imported_bush_model = _load_embedded_glb("res://assets/vegetation/bush.glb.b64")
 
 	var park_centers: Array[Vector2] = [
 		Vector2(40.0, 40.0),
@@ -320,12 +322,22 @@ func _build_asset_parks() -> void:
 			var tree := imported_tree_models[source_index].duplicate()
 			var tree_root := Node3D.new()
 			tree_root.name = "QuaterniusCC0Tree"
-			tree_root.position = Vector3(center.x + radial.x, -0.27, center.y + radial.y)
+			tree_root.position = Vector3(center.x + radial.x, 0.0, center.y + radial.y)
 			tree_root.rotation.y = rng.randf_range(0.0, TAU)
 			var tree_scale := rng.randf_range(0.92, 1.18)
 			tree_root.scale = Vector3.ONE * tree_scale
 			tree_root.add_child(tree)
 			add_child(tree_root)
+		if imported_bush_model != null:
+			for bush_index in range(4):
+				var bush := Node3D.new()
+				bush.name = "QuaterniusCC0Bush"
+				var offset_x := -15.0 if bush_index % 2 == 0 else 15.0
+				var offset_z := -15.0 if bush_index < 2 else 15.0
+				bush.position = Vector3(center.x + offset_x, 0.0, center.y + offset_z)
+				bush.scale = Vector3.ONE * 1.25
+				bush.add_child(imported_bush_model.duplicate())
+				add_child(bush)
 		_create_park_bench(Vector3(center.x - 7.0, -0.27, center.y))
 		_create_park_bench(Vector3(center.x + 7.0, -0.27, center.y))
 
