@@ -83,7 +83,7 @@ function makeBuilding(x,z,index){
  const body=new THREE.Mesh(new THREE.LatheGeometry(profile,32),mat);
  body.castShadow=true;body.receiveShadow=true;group.add(body);
  const floorCount=Math.max(2,Math.floor(h/9));
- for(let floor=1;floor<floorCount;floor++){
+ for(let floor=1;floor<=Math.min(3,floorCount-1);floor++){
   const y=h*floor/floorCount;
   const glass=new THREE.Mesh(new THREE.CylinderGeometry(radius*.986,radius*.986,.85,32),glassMats[index%3]);
   glass.position.y=y;group.add(glass);
@@ -118,7 +118,7 @@ function palm(x,z,s=1){
  for(let i=0;i<8;i++){const a=i*Math.PI/4;const leaf=new THREE.Mesh(new THREE.ConeGeometry(.42*s,6*s,5,1,true),leafMat);leaf.position.set(Math.cos(a)*2.1*s,8*s+Math.sin(i*2)*.25,Math.sin(a)*2.1*s);leaf.rotation.z=-Math.cos(a)*.85;leaf.rotation.x=Math.sin(a)*.85;leaf.rotation.y=-a;leaf.castShadow=true;g.add(leaf);}
  scene.add(g);
 }
-for(let i=0;i<270;i++){const a=rand()*Math.PI*2,r=800+rand()*3000;palm(Math.cos(a)*r,Math.sin(a)*r,.7+rand()*.65);}
+for(let i=0;i<105;i++){const a=rand()*Math.PI*2,r=800+rand()*3000;palm(Math.cos(a)*r,Math.sin(a)*r,.7+rand()*.65);}
 
 const player=new THREE.Group();player.position.set(0,0,0);scene.add(player);
 let avatar=null,mixer=null,actions={},activeAction=null;
@@ -201,7 +201,7 @@ function drawMap(focus=new THREE.Vector3()){
   ctx.fillStyle='#d8c6a6';ctx.beginPath();ctx.arc(x,y,Math.max(1.1,b.r*scale*.42),0,Math.PI*2);ctx.fill();
  }
  ctx.restore();
- ctx.save();ctx.translate(center,center);ctx.rotate(-focus.rotationY||0);
+ ctx.save();ctx.translate(center,center);ctx.rotate(-(driving?car.rotation.y:player.rotation.y));
  ctx.beginPath();ctx.moveTo(0,-8);ctx.lineTo(5.5,6);ctx.lineTo(0,3.5);ctx.lineTo(-5.5,6);ctx.closePath();
  ctx.fillStyle='#71fff0';ctx.fill();ctx.lineWidth=1.5;ctx.strokeStyle='#09252c';ctx.stroke();
  ctx.restore();
