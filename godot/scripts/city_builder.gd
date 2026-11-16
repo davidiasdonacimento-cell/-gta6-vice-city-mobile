@@ -121,7 +121,8 @@ func _build_city_blocks() -> void:
 			var center_x := -200.0 + float(block_x) * ROAD_STEP
 			var center_z := -200.0 + float(block_z) * ROAD_STEP
 			if (block_x + block_z) % 6 == 0:
-				continue\n\t\t\tvar count := 2 if block_x in [2, 3] and block_z in [2, 3] else 1
+				continue
+			var count := 2 if block_x in [2, 3] and block_z in [2, 3] else 1
 			for slot in range(count):
 				var offset_x := -13.5 if slot == 0 and count == 2 else (13.5 if count == 2 else 0.0)
 				var offset_z := rng.randf_range(-8.0, 8.0)
