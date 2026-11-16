@@ -74,7 +74,7 @@ func _setup_camera() -> void:
 func _setup_car() -> void:
 	var car := CAR_SCRIPT.new() as VehicleBody3D
 	car.name = "Car"
-	car.position = Vector3(12.0, 0.15, 20.0)
+	car.position = Vector3(3.0, 0.15, 20.0)
 	add_child(car)
 
 func _setup_hud() -> void:
