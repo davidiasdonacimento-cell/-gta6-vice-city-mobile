@@ -90,7 +90,7 @@ func _build_roads() -> void:
 		for dash_index in range(0, 10):
 			var dash_x := -CITY_SPAN * 0.5 + 12.0 + float(dash_index) * 56.0
 			_add_plane("LaneDash_EW", Vector2(10.0, 0.20), Vector3(dash_x, -0.245, coordinate), lane_paint)
-			var dash_z := -CITY_SPAN * 0.5 + 12.0 + float(dash_index) * 24.0
+			var dash_z := -CITY_SPAN * 0.5 + 12.0 + float(dash_index) * 56.0
 			_add_plane("LaneDash_NS", Vector2(0.20, 10.0), Vector3(coordinate, -0.24, dash_z), lane_paint)
 
 	_add_plane("MainBoulevard_Median", Vector2(CITY_SPAN, 1.2), Vector3(0, -0.235, 0), _mat(Color("#d4be88"), 0.8))
@@ -120,7 +120,8 @@ func _build_city_blocks() -> void:
 		for block_z in range(6):
 			var center_x := -200.0 + float(block_x) * ROAD_STEP
 			var center_z := -200.0 + float(block_z) * ROAD_STEP
-			if (block_x + block_z) % 6 == 0:\n\t\t\t\tcontinue\n\t\t\tvar count := 2 if block_x in [2, 3] and block_z in [2, 3] else 1
+			if (block_x + block_z) % 6 == 0:
+				continue\n\t\t\tvar count := 2 if block_x in [2, 3] and block_z in [2, 3] else 1
 			for slot in range(count):
 				var offset_x := -13.5 if slot == 0 and count == 2 else (13.5 if count == 2 else 0.0)
 				var offset_z := rng.randf_range(-8.0, 8.0)
@@ -157,8 +158,8 @@ func _create_tower(location: Vector3, radius: float, height: float, facade_color
 		var y := -height * 0.27 + float(floor_index) * (height * 0.54 / maxf(1.0, float(floors - 1)))
 		_add_cylinder(tower, radius * 0.94, radius * 0.94, 0.18, trim, y, 40)
 
-	for fin_index in range(8):
-		var angle := TAU * float(fin_index) / 8.0
+	for fin_index in range(6):
+		var angle := TAU * float(fin_index) / 6.0
 		var fin := MeshInstance3D.new()
 		var fin_mesh := CylinderMesh.new()
 		fin_mesh.top_radius = 0.16
