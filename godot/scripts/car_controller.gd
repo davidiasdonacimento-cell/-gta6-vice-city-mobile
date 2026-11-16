@@ -137,7 +137,7 @@ func enter_vehicle(actor: CharacterBody3D) -> void:
 	is_driving = true
 	mobile_input = Vector2.ZERO
 	mobile_brake = false
-	driver.mobile_direction = Vector2.ZERO
+	driver.set("mobile_direction", Vector2.ZERO)
 	driver.set_physics_process(false)
 	var visual := driver.get_node_or_null("Visual")
 	if visual:
@@ -158,7 +158,7 @@ func exit_vehicle() -> void:
 	if visual:
 		visual.visible = true
 		visual.rotation = Vector3.ZERO
-	driver.mobile_direction = Vector2.ZERO
+	driver.set("mobile_direction", Vector2.ZERO)
 	driver = null
 	mobile_input = Vector2.ZERO
 	mobile_brake = false
