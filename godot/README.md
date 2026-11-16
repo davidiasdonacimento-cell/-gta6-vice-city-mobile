@@ -5,21 +5,23 @@ Independent open-world project for Web and Android. It is not affiliated with Ro
 ## Open the project
 Open this `godot/` folder in Godot 4.4 or newer. The main scene is `scenes/main.tscn`.
 
-## Current foundation
-- One Godot project intended for Web and Android exports.
-- Compatibility renderer for the shared WebGL/mobile rendering path.
+## Implemented in this branch
+- One Godot project intended for Web and Android exports, using the Compatibility renderer.
 - Third-person player controller with keyboard and touch input.
 - Touch joystick on the bottom-left and camera drag on the right.
-- Articulated placeholder character with procedural idle/walk/run movement.
-- First coastal district: road grid, lane markings, sidewalks, art-deco-inspired rounded towers, waterfront promenade, beach strip, palms and street furniture.
-- Collision for the player ground and building footprints.
+- Articulated player placeholder with procedural idle/walk/run movement.
+- First coastal district with a road grid, lane markings, sidewalks, rounded Art-Deco-inspired towers, promenade, beach, palms and street furniture.
+- Palm geometry batched with MultiMesh to reduce draw calls.
+- First drivable car using VehicleBody3D, four suspension wheels, keyboard/touch steering, throttle, brake, and enter/exit interaction.
+- Collision for the ground, buildings, player, and vehicle.
 
 ## Current limitations
-This is a playable foundation and first district, not a finished large open-world game. The character is a procedural placeholder, not a production rigged/animated GLB. Buildings are generated from Godot meshes; they are not hand-authored Blender assets. There are not yet drivable vehicles, traffic, pedestrian AI, missions, interiors, save/load, audio, or a complete map.
+This is an early playable foundation, not a finished large open-world game. The player and car visuals are procedural placeholders, and city buildings are generated from Godot meshes rather than production Blender assets. There are not yet pedestrian AI, traffic simulation, missions, functional shops/interiors, save/load, or spatial audio. All systems still require an editor run and device testing.
 
 ## Controls
-- Desktop: WASD or arrow keys to move; Shift to run.
-- Touch: left virtual joystick to move; drag on the right half to rotate the camera; hold CORRER to run.
+- Desktop: WASD or arrow keys to move; Shift to run; E to enter/exit the nearby car.
+- Touch: left joystick to move or steer/accelerate; drag the right side to rotate the camera; hold CORRER on foot or FREIO in the car.
+- The ENTRAR/SAIR button appears when close to the vehicle.
 
 ## Export
 Create an HTML5 export preset in Godot for Web deployment. Create an Android export preset and configure the Android SDK for APK generation. Both exports use this same project. Exported builds have not yet been packaged or device-tested.
