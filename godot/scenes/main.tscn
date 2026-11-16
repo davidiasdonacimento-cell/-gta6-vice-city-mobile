@@ -13,4 +13,4 @@ light_energy = 1.25
 shadow_enabled = true
 
 [node name="Player" type="CharacterBody3D" parent="."]
-position = Vector3(0, 1, 0)
+position = Vector3(12, 1, 12)
