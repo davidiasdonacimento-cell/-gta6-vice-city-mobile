@@ -48,8 +48,71 @@ class TouchJoystick:
 		draw_circle(knob_center, KNOB_RADIUS, Color(0.12, 0.58, 0.88, 0.88))
 		draw_arc(knob_center, KNOB_RADIUS, 0.0, TAU, 48, Color(0.88, 0.96, 1.0, 0.95), 2.0, true)
 
+class CityMinimap:
+	extends Control
+
+	var actor: Node3D
+	var vehicle: Node3D
+	var refresh_clock := 0.0
+	const MAP_SCALE := 0.22
+	const EDGE := 9.0
+
+	func _ready() -> void:
+		custom_minimum_size = Vector2(178.0, 178.0)
+		size = custom_minimum_size
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _process(delta: float) -> void:
+		refresh_clock += delta
+		if refresh_clock >= 0.12:
+			refresh_clock = 0.0
+			queue_redraw()
+
+	func _map_point(world_position: Vector3) -> Vector2:
+		var center := size * 0.5
+		return center + Vector2(world_position.x - actor.global_position.x, world_position.z - actor.global_position.z) * MAP_SCALE
+
+	func _draw() -> void:
+		draw_rect(Rect2(Vector2.ZERO, size), Color(0.025, 0.07, 0.10, 0.91), true)
+		draw_rect(Rect2(Vector2(2.0, 2.0), size - Vector2(4.0, 4.0)), Color(0.09, 0.18, 0.21, 0.96), false, 2.0)
+		if actor == null:
+			return
+
+		var center := size * 0.5
+		var map_rect := Rect2(Vector2(EDGE, EDGE), size - Vector2(EDGE * 2.0, EDGE * 2.0))
+		var shoreline_y := center.y + (282.0 - actor.global_position.z) * MAP_SCALE
+		if shoreline_y < map_rect.end.y:
+			var water_start := maxf(map_rect.position.y, shoreline_y)
+			draw_rect(Rect2(Vector2(map_rect.position.x, water_start), Vector2(map_rect.size.x, maxf(0.0, map_rect.end.y - water_start))), Color("#075d75"), true)
+			draw_line(Vector2(map_rect.position.x, shoreline_y), Vector2(map_rect.end.x, shoreline_y), Color("#c9d8c0"), 2.0)
+
+		for road_index in range(-3, 4):
+			var world_coordinate := float(road_index) * 80.0
+			var screen_x := center.x + (world_coordinate - actor.global_position.x) * MAP_SCALE
+			var screen_y := center.y + (world_coordinate - actor.global_position.z) * MAP_SCALE
+			if screen_x >= map_rect.position.x and screen_x <= map_rect.end.x:
+				draw_line(Vector2(screen_x, map_rect.position.y), Vector2(screen_x, map_rect.end.y), Color("#b9b7a9"), 3.0)
+			if screen_y >= map_rect.position.y and screen_y <= map_rect.end.y:
+				draw_line(Vector2(map_rect.position.x, screen_y), Vector2(map_rect.end.x, screen_y), Color("#b9b7a9"), 3.0)
+
+		if vehicle != null:
+			var vehicle_point := _map_point(vehicle.global_position)
+			if map_rect.has_point(vehicle_point):
+				draw_circle(vehicle_point, 4.0, Color("#f4c65e"))
+
+		var forward := Vector2(-sin(actor.global_rotation.y), -cos(actor.global_rotation.y))
+		var side := Vector2(-forward.y, forward.x)
+		var tip := center + forward * 12.0
+		var rear_left := center - forward * 8.0 + side * 7.0
+		var rear_right := center - forward * 8.0 - side * 7.0
+		draw_colored_polygon(PackedVector2Array([tip, rear_left, rear_right]), Color("#f8fbf7"))
+		draw_circle(center, 3.0, Color("#16252c"))
+
+		draw_rect(map_rect, Color(0.7, 0.86, 0.86, 0.16), false, 1.0)
+
 var player: CharacterBody3D
 var car: Node3D
+var minimap: CityMinimap
 var camera_pivot: Node3D
 var camera_drag_id := -1
 var last_camera_point := Vector2.ZERO
@@ -125,6 +188,14 @@ func _build_controls() -> void:
 	hint.position = Vector2(18.0, 18.0)
 	hint.add_theme_font_size_override("font_size", 16)
 	layer.add_child(hint)
+
+	minimap = CityMinimap.new()
+	minimap.name = "CityMinimap"
+	minimap.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	minimap.position = Vector2(-194.0, 20.0)
+	minimap.actor = player
+	minimap.vehicle = car
+	layer.add_child(minimap)
 
 func _process(_delta: float) -> void:
 	if car == null or player == null:
