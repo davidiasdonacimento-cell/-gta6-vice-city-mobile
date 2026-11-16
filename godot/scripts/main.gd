@@ -27,9 +27,12 @@ func _setup_environment() -> void:
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	env.ambient_light_energy = 0.72
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	var world := WorldEnvironment.new()
+	var world := get_node_or_null("WorldEnvironment") as WorldEnvironment
+	if world == null:
+		world = WorldEnvironment.new()
+		world.name = "WorldEnvironment"
+		add_child(world)
 	world.environment = env
-	add_child(world)
 
 func _build_city() -> void:
 	var city := CITY_BUILDER_SCRIPT.new()
