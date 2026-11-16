@@ -1,0 +1,74 @@
+extends CanvasLayer
+
+var player: CharacterBody3D
+var stick_origin := Vector2.ZERO
+var stick_pointer := -1
+var stick_vector := Vector2.ZERO
+var camera_drag_id := -1
+var last_camera_point := Vector2.ZERO
+var camera_pivot: Node3D
+
+func _ready() -> void:
+	player = get_parent().get_node("Player") as CharacterBody3D
+	camera_pivot = player.get_node("CameraPivot")
+	_build_controls()
+
+func _build_controls() -> void:
+	var layer := Control.new()
+	layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(layer)
+
+	var joystick := _make_button(" ", Vector2(34, -180), Vector2(150, 150), layer)
+	joystick.name = "TouchJoystick"
+	joystick.modulate = Color(0.65, 0.95, 0.96, 0.45)
+	joystick.button_down.connect(func(): pass)
+	joystick.gui_input.connect(_on_joystick_input)
+
+	var run_button := _make_button("CORRER", Vector2(-142, -170), Vector2(108, 54), layer)
+	run_button.pressed.connect(func(): Input.action_press("run"))
+	run_button.button_up.connect(func(): Input.action_release("run"))
+
+	var hint := Label.new()
+	hint.text = "Arraste o lado direito para girar a câmera"
+	hint.position = Vector2(18, 18)
+	hint.add_theme_font_size_override("font_size", 16)
+	layer.add_child(hint)
+
+func _make_button(label_text: String, offset: Vector2, size: Vector2, parent: Control) -> Button:
+	var button := Button.new()
+	button.text = label_text
+	button.size = size
+	button.anchor_left = 0.0 if offset.x >= 0 else 1.0
+	button.anchor_right = button.anchor_left
+	button.anchor_top = 1.0
+	button.anchor_bottom = 1.0
+	button.position = offset
+	button.add_theme_font_size_override("font_size", 14)
+	parent.add_child(button)
+	return button
+
+func _on_joystick_input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			stick_pointer = event.index
+			stick_origin = event.position
+		else:
+			stick_pointer = -1
+			stick_vector = Vector2.ZERO
+	elif event is InputEventScreenDrag and event.index == stick_pointer:
+		stick_vector = ((event.position - stick_origin) / 58.0).limit_length(1.0)
+	player.mobile_direction = stick_vector
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch and event.position.x > get_viewport().get_visible_rect().size.x * 0.48:
+		if event.pressed:
+			camera_drag_id = event.index
+			last_camera_point = event.position
+		elif event.index == camera_drag_id:
+			camera_drag_id = -1
+	elif event is InputEventScreenDrag and event.index == camera_drag_id:
+			var delta := event.position - last_camera_point
+			camera_pivot.rotation.y -= delta.x * 0.006
+			camera_pivot.rotation.x = clamp(camera_pivot.rotation.x - delta.y * 0.004, -0.45, 0.5)
+			last_camera_point = event.position
