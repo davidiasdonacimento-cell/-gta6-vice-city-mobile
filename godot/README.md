@@ -29,4 +29,4 @@ This is an early game foundation with a first district, not a finished large ope
 Create an HTML5 export preset in Godot for Web deployment. Create an Android export preset and configure the Android SDK for APK generation. Both exports use this same project. Exported builds have not yet been packaged or device-tested.
 
 ## Asset license
-The vegetation GLB models are from the Quaternius Stylized Nature MegaKit and are distributed as CC0 1.0 public-domain assets. See `assets/vegetation/CREDITS.md`.
+The vegetation GLB models are from the Quaternius Stylized Nature MegaKit and are distributed as CC0 1.0 public-domain assets. See `assets/vegetation/CREDITS.md`. The models are decoded from bundled base64 text with Godot's GLTFDocument at runtime.
