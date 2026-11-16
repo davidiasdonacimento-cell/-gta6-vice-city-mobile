@@ -87,8 +87,8 @@ func _build_roads() -> void:
 			_add_plane("Sidewalk_EW", Vector2(CITY_SPAN, 4.4), Vector3(0, -0.20, coordinate + verge), sidewalk)
 			_add_plane("Sidewalk_NS", Vector2(4.4, CITY_SPAN), Vector3(coordinate + verge, -0.20, 0), sidewalk)
 
-		for dash_index in range(0, 24):
-			var dash_x := -CITY_SPAN * 0.5 + 12.0 + float(dash_index) * 24.0
+		for dash_index in range(0, 10):
+			var dash_x := -CITY_SPAN * 0.5 + 12.0 + float(dash_index) * 56.0
 			_add_plane("LaneDash_EW", Vector2(10.0, 0.20), Vector3(dash_x, -0.245, coordinate), lane_paint)
 			var dash_z := -CITY_SPAN * 0.5 + 12.0 + float(dash_index) * 24.0
 			_add_plane("LaneDash_NS", Vector2(0.20, 10.0), Vector3(coordinate, -0.24, dash_z), lane_paint)
@@ -120,7 +120,7 @@ func _build_city_blocks() -> void:
 		for block_z in range(6):
 			var center_x := -200.0 + float(block_x) * ROAD_STEP
 			var center_z := -200.0 + float(block_z) * ROAD_STEP
-			var count := 2 if rng.randf() > 0.28 else 1
+			if (block_x + block_z) % 6 == 0:\n\t\t\t\tcontinue\n\t\t\tvar count := 2 if block_x in [2, 3] and block_z in [2, 3] else 1
 			for slot in range(count):
 				var offset_x := -13.5 if slot == 0 and count == 2 else (13.5 if count == 2 else 0.0)
 				var offset_z := rng.randf_range(-8.0, 8.0)
@@ -152,7 +152,7 @@ func _create_tower(location: Vector3, radius: float, height: float, facade_color
 	_add_cylinder(tower, radius, radius * (0.84 if style == 1 else 0.94), height - 6.0, facade, 0.5, 40)
 	_add_cylinder(tower, radius * 0.82, radius * 0.76, height * 0.62, dark_glass, 0.9, 40)
 
-	var floors := clampi(int(height / 8.0), 3, 8)
+	var floors := clampi(int(height / 10.0), 3, 6)
 	for floor_index in range(floors):
 		var y := -height * 0.27 + float(floor_index) * (height * 0.54 / maxf(1.0, float(floors - 1)))
 		_add_cylinder(tower, radius * 0.94, radius * 0.94, 0.18, trim, y, 40)
@@ -212,46 +212,57 @@ func _build_waterfront() -> void:
 		_add_plane("WaterfrontPaving", Vector2(2.4, 11.0), Vector3(pier_x, -0.08, 282.0), promenade)
 
 func _build_palms() -> void:
-	for road_index in range(-3, 4):
+	var locations: Array[Vector3] = []
+	for road_index in [-2, 0, 2]:
 		var coordinate := float(road_index) * ROAD_STEP
-		for step in range(0, 6):
-			var along := -210.0 + float(step) * 84.0
-			_create_palm(Vector3(along, 0.0, coordinate + 14.5))
+		for step in range(0, 5):
+			var along := -160.0 + float(step) * 80.0
+			locations.append(Vector3(along, 0.0, coordinate + 14.5))
 			if road_index == 0:
-				_create_palm(Vector3(coordinate + 14.5, 0.0, along))
-	for beach_index in range(0, 12):
-		_create_palm(Vector3(-255.0 + float(beach_index) * 46.0, 0.0, 276.0))
+				locations.append(Vector3(coordinate + 14.5, 0.0, along))
+	for beach_index in range(0, 10):
+		locations.append(Vector3(-225.0 + float(beach_index) * 50.0, 0.0, 276.0))
+	_create_palm_multimeshes(locations)
 
-func _create_palm(location: Vector3) -> void:
-	var palm := Node3D.new()
-	palm.name = "CoastalPalm"
-	palm.position = location
-	add_child(palm)
-
-	var trunk := MeshInstance3D.new()
+func _create_palm_multimeshes(locations: Array[Vector3]) -> void:
 	var trunk_mesh := CylinderMesh.new()
 	trunk_mesh.top_radius = 0.11
 	trunk_mesh.bottom_radius = 0.25
 	trunk_mesh.height = 5.4
 	trunk_mesh.radial_segments = 9
-	trunk.mesh = trunk_mesh
-	trunk.material_override = trunk_material
-	trunk.position.y = 2.7
-	palm.add_child(trunk)
+	var trunk_batch := MultiMesh.new()
+	trunk_batch.transform_format = MultiMesh.TRANSFORM_3D
+	trunk_batch.mesh = trunk_mesh
+	trunk_batch.instance_count = locations.size()
+	for index in range(locations.size()):
+		var location: Vector3 = locations[index]
+		trunk_batch.set_instance_transform(index, Transform3D(Basis.IDENTITY, Vector3(location.x, 2.7, location.z)))
+	var trunks := MultiMeshInstance3D.new()
+	trunks.name = "PalmTrunks_Batched"
+	trunks.multimesh = trunk_batch
+	trunks.material_override = trunk_material
+	add_child(trunks)
 
-	for frond_index in range(7):
-		var angle := TAU * float(frond_index) / 7.0
-		var frond := MeshInstance3D.new()
-		var frond_mesh := SphereMesh.new()
-		frond_mesh.radius = 1.0
-		frond_mesh.height = 2.0
-		frond.mesh = frond_mesh
-		frond.material_override = palm_material
-		frond.scale = Vector3(0.25, 0.10, 1.65)
-		frond.position = Vector3(cos(angle) * 0.78, 5.05, sin(angle) * 0.78)
-		frond.rotation.y = -angle
-		frond.rotation.x = 0.42
-		palm.add_child(frond)
+	var leaf_mesh := SphereMesh.new()
+	leaf_mesh.radius = 1.0
+	leaf_mesh.height = 2.0
+	var leaf_batch := MultiMesh.new()
+	leaf_batch.transform_format = MultiMesh.TRANSFORM_3D
+	leaf_batch.mesh = leaf_mesh
+	leaf_batch.instance_count = locations.size() * 7
+	var leaf_index := 0
+	for location in locations:
+		for frond_index in range(7):
+			var angle := TAU * float(frond_index) / 7.0
+			var scale_basis := Basis(Vector3.UP, -angle).scaled(Vector3(0.25, 0.10, 1.65))
+			var leaf_position := Vector3(location.x + cos(angle) * 0.78, 5.05, location.z + sin(angle) * 0.78)
+			leaf_batch.set_instance_transform(leaf_index, Transform3D(scale_basis, leaf_position))
+			leaf_index += 1
+	var leaves := MultiMeshInstance3D.new()
+	leaves.name = "PalmFronds_Batched"
+	leaves.multimesh = leaf_batch
+	leaves.material_override = palm_material
+	add_child(leaves)
 
 func _build_street_furniture() -> void:
 	for road_index in range(-3, 4):
