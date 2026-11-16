@@ -49,14 +49,20 @@ class TouchJoystick:
 		draw_arc(knob_center, KNOB_RADIUS, 0.0, TAU, 48, Color(0.88, 0.96, 1.0, 0.95), 2.0, true)
 
 var player: CharacterBody3D
+var car: Node3D
 var camera_pivot: Node3D
 var camera_drag_id := -1
 var last_camera_point := Vector2.ZERO
+var vehicle_button: Button
+var run_button: Button
+var brake_button: Button
 
 const CAMERA_SAFE_BOTTOM := 230.0
+const VEHICLE_INTERACTION_DISTANCE := 8.5
 
 func _ready() -> void:
 	player = get_parent().get_node("Player") as CharacterBody3D
+	car = get_parent().get_node_or_null("Car")
 	camera_pivot = player.get_node("CameraPivot")
 	_build_controls()
 
@@ -73,7 +79,7 @@ func _build_controls() -> void:
 	joystick.vector_changed.connect(_on_move_changed)
 	layer.add_child(joystick)
 
-	var run_button := Button.new()
+	run_button = Button.new()
 	run_button.name = "RunButton"
 	run_button.text = "CORRER"
 	run_button.size = Vector2(108.0, 54.0)
@@ -87,17 +93,74 @@ func _build_controls() -> void:
 	run_button.button_up.connect(func(): Input.action_release("run"))
 	layer.add_child(run_button)
 
+	vehicle_button = Button.new()
+	vehicle_button.name = "VehicleButton"
+	vehicle_button.text = "ENTRAR"
+	vehicle_button.size = Vector2(116.0, 52.0)
+	vehicle_button.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	vehicle_button.position = Vector2(-140.0, -236.0)
+	vehicle_button.focus_mode = Control.FOCUS_NONE
+	vehicle_button.add_theme_font_size_override("font_size", 14)
+	vehicle_button.add_theme_color_override("font_color", Color.WHITE)
+	vehicle_button.add_theme_color_override("font_pressed_color", Color.WHITE)
+	vehicle_button.pressed.connect(_toggle_vehicle)
+	layer.add_child(vehicle_button)
+
+	brake_button = Button.new()
+	brake_button.name = "BrakeButton"
+	brake_button.text = "FREIO"
+	brake_button.size = Vector2(116.0, 52.0)
+	brake_button.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	brake_button.position = Vector2(-140.0, -170.0)
+	brake_button.focus_mode = Control.FOCUS_NONE
+	brake_button.add_theme_font_size_override("font_size", 14)
+	brake_button.add_theme_color_override("font_color", Color.WHITE)
+	brake_button.add_theme_color_override("font_pressed_color", Color.WHITE)
+	brake_button.button_down.connect(_set_mobile_brake.bind(true))
+	brake_button.button_up.connect(_set_mobile_brake.bind(false))
+	layer.add_child(brake_button)
+
 	var hint := Label.new()
-	hint.text = "Arraste o lado direito para girar a câmera"
+	hint.text = "Joystick: mover • lado direito: câmera"
 	hint.position = Vector2(18.0, 18.0)
 	hint.add_theme_font_size_override("font_size", 16)
 	layer.add_child(hint)
 
+func _process(_delta: float) -> void:
+	if car == null or player == null:
+		return
+	var driving := bool(car.get("is_driving"))
+	var near_car := player.global_position.distance_to(car.global_position) <= VEHICLE_INTERACTION_DISTANCE
+	vehicle_button.visible = driving or near_car
+	vehicle_button.text = "SAIR" if driving else "ENTRAR"
+	run_button.visible = not driving
+	brake_button.visible = driving
+
 func _on_move_changed(value: Vector2) -> void:
-	if player:
+	if car != null and bool(car.get("is_driving")):
+		car.set("mobile_input", value)
+		player.mobile_direction = Vector2.ZERO
+	else:
+		if car != null:
+			car.set("mobile_input", Vector2.ZERO)
 		player.mobile_direction = value
 
+func _set_mobile_brake(pressed: bool) -> void:
+	if car != null and bool(car.get("is_driving")):
+		car.set("mobile_brake", pressed)
+
+func _toggle_vehicle() -> void:
+	if car == null or player == null:
+		return
+	if bool(car.get("is_driving")):
+		car.call("exit_vehicle")
+	elif player.global_position.distance_to(car.global_position) <= VEHICLE_INTERACTION_DISTANCE:
+		car.call("enter_vehicle", player)
+
 func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("interact"):
+		_toggle_vehicle()
+
 	var viewport_size := get_viewport().get_visible_rect().size
 	if event is InputEventScreenTouch:
 		if event.pressed:
@@ -115,5 +178,7 @@ func _input(event: InputEvent) -> void:
 
 func _exit_tree() -> void:
 	Input.action_release("run")
+	if car != null and bool(car.get("is_driving")):
+		car.call("exit_vehicle")
 	if player:
 		player.mobile_direction = Vector2.ZERO
