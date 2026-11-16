@@ -274,6 +274,7 @@ func _load_embedded_glb(encoded_path: String) -> Node:
 		push_warning("Missing optional vegetation asset: " + encoded_path)
 		return null
 	var encoded := FileAccess.get_file_as_string(encoded_path).strip_edges()
+	encoded = encoded.replace("\n", "").replace("\r", "").replace(" ", "")
 	if encoded.is_empty():
 		push_warning("Empty vegetation asset: " + encoded_path)
 		return null
