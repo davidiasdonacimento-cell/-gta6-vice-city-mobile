@@ -109,8 +109,13 @@ loader.load('https://threejs.org/examples/models/gltf/Soldier.glb',g=>{
 function setAction(name){const next=actions[name];if(!next||activeAction===next)return;next.reset().fadeIn(.2).play();if(activeAction)activeAction.fadeOut(.2);activeAction=next;}
 
 const car=new THREE.Group();car.position.set(55,0,45);scene.add(car);
-const carBody=new THREE.Mesh(new THREE.BoxGeometry(5.6,1.25,10),new THREE.MeshPhysicalMaterial({color:0xe75e72,metalness:.35,roughness:.25,clearcoat:1}));carBody.position.y=1.3;carBody.castShadow=true;car.add(carBody);
-const cabin=new THREE.Mesh(new THREE.BoxGeometry(4.5,1.25,4.8),new THREE.MeshPhysicalMaterial({color:0x294a54,metalness:.45,roughness:.2,transparent:true,opacity:.88}));cabin.position.set(0,2.45,-.35);car.add(cabin);
+function carProfile(points,depth,material,y){
+ const shape=new THREE.Shape();shape.moveTo(points[0][0],points[0][1]);for(let i=1;i<points.length;i++)shape.lineTo(points[i][0],points[i][1]);shape.closePath();
+ const geometry=new THREE.ExtrudeGeometry(shape,{depth,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.16,bevelThickness:.14,curveSegments:10});geometry.translate(0,0,-depth/2);geometry.center();
+ const mesh=new THREE.Mesh(geometry,material);mesh.rotation.y=Math.PI/2;mesh.position.y=y;mesh.castShadow=true;return mesh;
+}
+car.add(carProfile([[-5,.5],[-4.7,1.1],[-3.6,1.45],[3.8,1.45],[4.8,1.05],[5,.55]],5.5,new THREE.MeshPhysicalMaterial({color:0xe75e72,metalness:.35,roughness:.25,clearcoat:1}),1.05));
+car.add(carProfile([[-2.8,1.45],[-1.9,2.55],[1.8,2.55],[3,1.45]],4.25,new THREE.MeshPhysicalMaterial({color:0x294a54,metalness:.45,roughness:.2,transparent:true,opacity:.88}),1.08));
 for(const x of [-2.7,2.7])for(const z of [-3.2,3.2]){const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.78,.78,.42,18),new THREE.MeshStandardMaterial({color:0x15191b,roughness:.9}));wheel.rotation.z=Math.PI/2;wheel.position.set(x,.8,z);car.add(wheel);}
 let driving=false,speed=0;
 const keys={};addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key==='Shift')running=true;if(e.key.toLowerCase()==='e')toggleCar();});
