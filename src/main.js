@@ -124,7 +124,7 @@ const player=new THREE.Group();player.position.set(0,0,0);scene.add(player);
 let avatar=null,mixer=null,actions={},activeAction=null;
 const loader=new GLTFLoader();
 loader.load('https://threejs.org/examples/models/gltf/Soldier.glb',g=>{
- avatar=g.scene;avatar.scale.setScalar(2.05);avatar.position.y=0;avatar.traverse(o=>{if(o.isMesh){o.castShadow=true;o.frustumCulled=true;}});player.add(avatar);
+ avatar=g.scene;avatar.scale.setScalar(2.05);avatar.position.y=0;avatar.rotation.y=Math.PI;avatar.traverse(o=>{if(o.isMesh){o.castShadow=true;o.frustumCulled=true;}});player.add(avatar);
  mixer=new THREE.AnimationMixer(avatar);
  for(const clip of g.animations){const action=mixer.clipAction(clip);actions[clip.name]=action;}
  setAction('Idle');
