@@ -13,6 +13,7 @@ var glass_material: StandardMaterial3D
 var palm_material: StandardMaterial3D
 var trunk_material: StandardMaterial3D
 var lamp_material: StandardMaterial3D
+var imported_tree_models: Array[Node] = []
 
 func _ready() -> void:
 	rng.seed = 24681357
@@ -45,6 +46,7 @@ func build_city() -> void:
 	_build_waterfront()
 	_build_street_furniture()
 	_build_palms()
+	_build_asset_parks()
 
 func _build_island_and_ocean() -> void:
 	var island := MeshInstance3D.new()
@@ -265,6 +267,97 @@ func _create_palm_multimeshes(locations: Array[Vector3]) -> void:
 	leaves.multimesh = leaf_batch
 	leaves.material_override = palm_material
 	add_child(leaves)
+
+func _load_embedded_glb(encoded_path: String) -> Node:
+	if not FileAccess.file_exists(encoded_path):
+		push_warning("Missing optional vegetation asset: " + encoded_path)
+		return null
+	var encoded := FileAccess.get_file_as_string(encoded_path).strip_edges()
+	if encoded.is_empty():
+		push_warning("Empty vegetation asset: " + encoded_path)
+		return null
+	var bytes := Marshalls.base64_to_raw(encoded)
+	var document := GLTFDocument.new()
+	var state := GLTFState.new()
+	var error := document.append_from_buffer(bytes, "", state)
+	if error != OK:
+		push_warning("Could not import vegetation GLB %s: %s" % [encoded_path, error_string(error)])
+		return null
+	return document.generate_scene(state)
+
+func _build_asset_parks() -> void:
+	var asset_paths := [
+		"res://assets/vegetation/tree1.glb.b64",
+		"res://assets/vegetation/tree2.glb.b64",
+		"res://assets/vegetation/tree3.glb.b64"
+	]
+	for path in asset_paths:
+		var source := _load_embedded_glb(path)
+		if source != null:
+			imported_tree_models.append(source)
+
+	var park_centers: Array[Vector2] = [
+		Vector2(40.0, 40.0),
+		Vector2(-200.0, -200.0),
+		Vector2(-120.0, 200.0),
+		Vector2(-40.0, 120.0),
+		Vector2(120.0, -40.0),
+		Vector2(200.0, -120.0)
+	]
+	var lawn_material := _mat(Color("#47724f"), 1.0)
+	var path_material := _mat(Color("#d2c3a2"), 0.92)
+	for park_index in range(park_centers.size()):
+		var center: Vector2 = park_centers[park_index]
+		_add_plane("ParkLawn_%02d" % park_index, Vector2(43.0, 43.0), Vector3(center.x, -0.255, center.y), lawn_material)
+		_add_plane("ParkWalk_%02d" % park_index, Vector2(3.0, 38.0), Vector3(center.x, -0.245, center.y), path_material)
+		_add_plane("ParkWalkCross_%02d" % park_index, Vector2(38.0, 3.0), Vector3(center.x, -0.244, center.y), path_material)
+		if imported_tree_models.is_empty():
+			continue
+		for tree_index in range(6):
+			var angle := TAU * float(tree_index) / 6.0 + float(park_index) * 0.37
+			var radial := Vector2(cos(angle), sin(angle)) * 14.5
+			var source_index := (tree_index + park_index) % imported_tree_models.size()
+			var tree := imported_tree_models[source_index].duplicate()
+			var tree_root := Node3D.new()
+			tree_root.name = "QuaterniusCC0Tree"
+			tree_root.position = Vector3(center.x + radial.x, -0.27, center.y + radial.y)
+			tree_root.rotation.y = rng.randf_range(0.0, TAU)
+			var tree_scale := rng.randf_range(0.92, 1.18)
+			tree_root.scale = Vector3.ONE * tree_scale
+			tree_root.add_child(tree)
+			add_child(tree_root)
+		_create_park_bench(Vector3(center.x - 7.0, -0.27, center.y))
+		_create_park_bench(Vector3(center.x + 7.0, -0.27, center.y))
+
+func _create_park_bench(location: Vector3) -> void:
+	var bench := Node3D.new()
+	bench.name = "ParkBench"
+	bench.position = location
+	add_child(bench)
+	var wood := _mat(Color("#8d6245"), 0.86)
+	var metal := _mat(Color("#344b55"), 0.58, 0.45)
+	var seat := MeshInstance3D.new()
+	var seat_mesh := BoxMesh.new()
+	seat_mesh.size = Vector3(2.8, 0.16, 0.72)
+	seat.mesh = seat_mesh
+	seat.material_override = wood
+	seat.position.y = 0.52
+	bench.add_child(seat)
+	var back := MeshInstance3D.new()
+	var back_mesh := BoxMesh.new()
+	back_mesh.size = Vector3(2.8, 0.82, 0.14)
+	back.mesh = back_mesh
+	back.material_override = wood
+	back.position = Vector3(0.0, 0.95, 0.30)
+	bench.add_child(back)
+	for side in [-1.0, 1.0]:
+		var leg := MeshInstance3D.new()
+		var leg_mesh := BoxMesh.new()
+		leg_mesh.size = Vector3(0.14, 0.48, 0.14)
+		leg.mesh = leg_mesh
+		leg.material_override = metal
+		leg.position = Vector3(side * 1.12, 0.25, 0.0)
+		bench.add_child(leg)
 
 func _build_street_furniture() -> void:
 	for road_index in range(-3, 4):
