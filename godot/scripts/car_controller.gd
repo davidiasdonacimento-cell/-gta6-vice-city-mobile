@@ -116,7 +116,7 @@ func _build_wheels() -> void:
 			tire_mesh.radial_segments = 20
 			tire.mesh = tire_mesh
 			tire.material_override = _rubber_material
-			tire.rotation_degrees.x = 90.0
+			tire.rotation_degrees.z = 90.0
 			wheel.add_child(tire)
 
 			var rim := MeshInstance3D.new()
@@ -127,7 +127,7 @@ func _build_wheels() -> void:
 			rim_mesh.radial_segments = 16
 			rim.mesh = rim_mesh
 			rim.material_override = _rim_material
-			rim.rotation_degrees.x = 90.0
+			rim.rotation_degrees.z = 90.0
 			wheel.add_child(rim)
 
 func enter_vehicle(actor: CharacterBody3D) -> void:
@@ -152,7 +152,7 @@ func exit_vehicle() -> void:
 	var exit_position := global_position + global_basis.x * 2.1 + Vector3(0.0, 0.25, 0.0)
 	driver.global_position = exit_position
 	driver.global_rotation.y = global_rotation.y
-	driver.velocity = linear_velocity
+	driver.velocity = linear_velocity * 0.25
 	driver.set_physics_process(true)
 	var visual := driver.get_node_or_null("Visual")
 	if visual:
@@ -166,7 +166,7 @@ func exit_vehicle() -> void:
 func _physics_process(_delta: float) -> void:
 	if not is_driving or driver == null:
 		engine_force = 0.0
-		brake = 4.0
+		brake = 22.0
 		steering = move_toward(steering, 0.0, 0.06)
 		return
 
