@@ -1,0 +1,31 @@
+name: Validate Godot project
+
+on:
+  push:
+    branches:
+      - rebuild/godot-cross-platform
+  workflow_dispatch:
+
+jobs:
+  godot-headless:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Godot 4.4.1
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/godot"
+          curl -fL --retry 3 "https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_linux.x86_64.zip" -o "$RUNNER_TEMP/godot.zip"
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          mv "$RUNNER_TEMP/godot/Godot_v4.4.1-stable_linux.x86_64" "$RUNNER_TEMP/godot/godot"
+          chmod +x "$RUNNER_TEMP/godot/godot"
+          echo "$RUNNER_TEMP/godot" >> "$GITHUB_PATH"
+
+      - name: Import and parse project
+        run: godot --headless --editor --path godot --quit
+
+      - name: Start main scene headlessly
+        run: godot --headless --path godot --quit-after 5
