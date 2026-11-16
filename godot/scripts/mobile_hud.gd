@@ -30,7 +30,7 @@ class TouchJoystick:
 				accept_event()
 		elif event is InputEventScreenDrag and event.index == touch_id:
 			_update_value(event.position)
-				accept_event()
+			accept_event()
 
 	func _update_value(point: Vector2) -> void:
 		var offset: Vector2 = point - CENTER
