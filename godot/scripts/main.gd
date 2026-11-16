@@ -1,6 +1,5 @@
 extends Node3D
 
-const PLAYER_SCRIPT := preload("res://scripts/player_controller.gd")
 const PLAYER_VISUAL_SCRIPT := preload("res://scripts/player_visual.gd")
 const CITY_BUILDER_SCRIPT := preload("res://scripts/city_builder.gd")
 const CAR_SCRIPT := preload("res://scripts/car_controller.gd")
@@ -42,8 +41,6 @@ func _build_city() -> void:
 
 func _setup_player() -> void:
 	var player := get_node("Player") as CharacterBody3D
-	player.set_script(PLAYER_SCRIPT)
-
 	var collider := CollisionShape3D.new()
 	var capsule := CapsuleShape3D.new()
 	capsule.radius = 0.36
