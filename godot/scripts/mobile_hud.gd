@@ -120,7 +120,7 @@ var vehicle_button: Button
 var run_button: Button
 var brake_button: Button
 
-const CAMERA_SAFE_BOTTOM := 230.0
+const CAMERA_SAFE_BOTTOM := 290.0
 const VEHICLE_INTERACTION_DISTANCE := 8.5
 
 func _ready() -> void:
@@ -235,7 +235,8 @@ func _input(event: InputEvent) -> void:
 	var viewport_size := get_viewport().get_visible_rect().size
 	if event is InputEventScreenTouch:
 		if event.pressed:
-			var camera_area := event.position.x > viewport_size.x * 0.48 and event.position.y < viewport_size.y - CAMERA_SAFE_BOTTOM
+			var outside_minimap := not (event.position.x > viewport_size.x - 194.0 and event.position.y < 200.0)
+			var camera_area := event.position.x > viewport_size.x * 0.48 and event.position.y < viewport_size.y - CAMERA_SAFE_BOTTOM and outside_minimap
 			if camera_area and camera_drag_id == -1:
 				camera_drag_id = event.index
 				last_camera_point = event.position
