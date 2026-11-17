@@ -2,6 +2,8 @@ extends Node3D
 class_name ViceCityMissionManager
 
 var cash := 0
+var engine_upgrade_level := 0
+var paint_index := 0
 var current_index := 0
 var status_text := ""
 var marker_nodes: Array[Node3D] = []
@@ -47,12 +49,16 @@ func _load_progress() -> void:
 	if save.load(SAVE_PATH) != OK:
 		return
 	cash = maxi(0, int(save.get_value("progress", "cash", 0)))
+	engine_upgrade_level = clampi(int(save.get_value("garage", "engine_level", 0)), 0, 3)
+	paint_index = clampi(int(save.get_value("garage", "paint_index", 0)), 0, 4)
 	current_index = clampi(int(save.get_value("progress", "mission_index", 0)), 0, missions.size())
 
 func _save_progress() -> void:
 	var save := ConfigFile.new()
 	save.set_value("progress", "cash", cash)
 	save.set_value("progress", "mission_index", current_index)
+	save.set_value("garage", "engine_level", engine_upgrade_level)
+	save.set_value("garage", "paint_index", paint_index)
 	var result := save.save(SAVE_PATH)
 	if result != OK:
 		push_warning("Could not save Vice City progress: " + error_string(result))
@@ -161,3 +167,30 @@ func get_cash() -> int:
 
 func get_mission_number() -> int:
 	return mini(current_index + 1, missions.size())
+
+func purchase_engine_upgrade() -> bool:
+	if engine_upgrade_level >= 3 or cash < 700:
+		return false
+	cash -= 700
+	engine_upgrade_level += 1
+	_save_progress()
+	return true
+
+func purchase_paint(next_paint_index: int) -> bool:
+	if cash < 150:
+		return false
+	cash -= 150
+	paint_index = posmod(next_paint_index, 5)
+	_save_progress()
+	return true
+
+func apply_saved_vehicle(vehicle_node: Node) -> void:
+	if vehicle_node == null:
+		return
+	vehicle_node.call("apply_garage", engine_upgrade_level, paint_index)
+
+func get_engine_upgrade_level() -> int:
+	return engine_upgrade_level
+
+func get_paint_index() -> int:
+	return paint_index
