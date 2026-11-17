@@ -21,12 +21,12 @@ func _spawn_traffic() -> void:
 		if horizontal:
 			car.travel_axis = Vector3.RIGHT
 			car.travel_sign = direction
-			car.position = Vector3(-CITY_LIMIT + float(index) * 95.0, 0.0, float(road) * ROAD_STEP + lane)
+			car.position = Vector3(-CITY_LIMIT + float(index) * 95.0, -0.27, float(road) * ROAD_STEP + lane)
 			car.rotation.y = -PI * 0.5 if direction > 0.0 else PI * 0.5
 		else:
 			car.travel_axis = Vector3.FORWARD
 			car.travel_sign = direction
-			car.position = Vector3(float(road) * ROAD_STEP + lane, 0.0, -CITY_LIMIT + float(index) * 95.0)
+			car.position = Vector3(float(road) * ROAD_STEP + lane, -0.27, -CITY_LIMIT + float(index) * 95.0)
 			car.rotation.y = 0.0 if direction > 0.0 else PI
 		car.travel_speed = 8.5 + float(index % 4) * 1.15
 		car.world_limit = CITY_LIMIT
