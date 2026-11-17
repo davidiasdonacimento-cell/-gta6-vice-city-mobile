@@ -55,12 +55,75 @@ func _box(parent: Node3D, dimensions: Vector3, position: Vector3, material: Mate
 	instance.position = position
 	parent.add_child(instance)
 
+func _add_loft_hull(parent: Node3D, node_name: String, sections: Array, material: Material) -> void:
+	var loops: Array[PackedVector3Array] = []
+	for section in sections:
+		var z := float(section["z"])
+		var bottom := float(section["bottom"])
+		var middle := float(section["middle"])
+		var top := float(section["top"])
+		var bottom_y := float(section["bottom_y"])
+		var middle_y := float(section["middle_y"])
+		var top_y := float(section["top_y"])
+		loops.append(PackedVector3Array([
+			Vector3(-bottom, bottom_y, z),
+			Vector3(-middle, middle_y, z),
+			Vector3(-top, top_y, z),
+			Vector3(top, top_y, z),
+			Vector3(middle, middle_y, z),
+			Vector3(bottom, bottom_y, z)
+		]))
+
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for section_index in range(loops.size() - 1):
+		var current := loops[section_index]
+		var next_section := loops[section_index + 1]
+		for point_index in range(current.size()):
+			var next_point := (point_index + 1) % current.size()
+			var a := current[point_index]
+			var b := current[next_point]
+			var c := next_section[next_point]
+			var d := next_section[point_index]
+			surface.add_vertex(a)
+			surface.add_vertex(b)
+			surface.add_vertex(c)
+			surface.add_vertex(a)
+			surface.add_vertex(c)
+			surface.add_vertex(d)
+	surface.generate_normals()
+
+	var hull := MeshInstance3D.new()
+	hull.name = node_name
+	hull.mesh = surface.commit()
+	hull.material_override = material
+	parent.add_child(hull)
+
 func _build_car_body() -> void:
-	_box(self, Vector3(1.9, 0.62, 4.35), Vector3(0.0, 0.20, 0.0), _body_material)
-	_box(self, Vector3(1.42, 0.58, 2.05), Vector3(0.0, 0.76, 0.12), _glass_material)
-	_box(self, Vector3(1.52, 0.10, 2.12), Vector3(0.0, 1.08, 0.12), _body_material)
-	_box(self, Vector3(1.62, 0.16, 1.05), Vector3(0.0, 0.43, -1.48), _body_material)
-	_box(self, Vector3(1.62, 0.13, 0.82), Vector3(0.0, 0.43, 1.66), _body_material)
+	var body_sections := [
+		{"z": -2.18, "bottom": 0.73, "middle": 0.82, "top": 0.74, "bottom_y": 0.12, "middle_y": 0.27, "top_y": 0.43},
+		{"z": -1.48, "bottom": 0.91, "middle": 0.88, "top": 0.69, "bottom_y": 0.10, "middle_y": 0.39, "top_y": 0.62},
+		{"z": -0.52, "bottom": 0.96, "middle": 0.88, "top": 0.67, "bottom_y": 0.10, "middle_y": 0.43, "top_y": 0.65},
+		{"z": 0.78, "bottom": 0.94, "middle": 0.86, "top": 0.66, "bottom_y": 0.10, "middle_y": 0.40, "top_y": 0.60},
+		{"z": 1.66, "bottom": 0.83, "middle": 0.79, "top": 0.68, "bottom_y": 0.12, "middle_y": 0.30, "top_y": 0.46},
+		{"z": 2.16, "bottom": 0.72, "middle": 0.74, "top": 0.68, "bottom_y": 0.15, "middle_y": 0.22, "top_y": 0.32}
+	]
+	_add_loft_hull(self, "CurvedBody", body_sections, _body_material)
+
+	var cabin_sections := [
+		{"z": -1.18, "bottom": 0.69, "middle": 0.57, "top": 0.44, "bottom_y": 0.56, "middle_y": 0.84, "top_y": 1.13},
+		{"z": -0.62, "bottom": 0.73, "middle": 0.67, "top": 0.57, "bottom_y": 0.58, "middle_y": 0.98, "top_y": 1.34},
+		{"z": 0.48, "bottom": 0.71, "middle": 0.64, "top": 0.54, "bottom_y": 0.58, "middle_y": 0.97, "top_y": 1.33},
+		{"z": 1.19, "bottom": 0.64, "middle": 0.55, "top": 0.43, "bottom_y": 0.53, "middle_y": 0.81, "top_y": 1.08}
+	]
+	_add_loft_hull(self, "PanoramicGlassCabin", cabin_sections, _glass_material)
+
+	var roof_material := _mat(Color("#a94336"), 0.38, 0.28)
+	var roof_sections := [
+		{"z": -0.72, "bottom": 0.55, "middle": 0.56, "top": 0.55, "bottom_y": 1.25, "middle_y": 1.31, "top_y": 1.34},
+		{"z": 0.56, "bottom": 0.53, "middle": 0.55, "top": 0.53, "bottom_y": 1.24, "middle_y": 1.31, "top_y": 1.34}
+	]
+	_add_loft_hull(self, "RoofPanel", roof_sections, roof_material)
 
 	var headlight_material := _mat(Color("#f6dfaa"), 0.22, 0.0)
 	headlight_material.emission_enabled = true
@@ -73,7 +136,7 @@ func _build_car_body() -> void:
 		headlight_mesh.height = 0.12
 		headlight.mesh = headlight_mesh
 		headlight.material_override = headlight_material
-		headlight.position = Vector3(side * 0.65, 0.42, -2.13)
+		headlight.position = Vector3(side * 0.65, 0.38, -2.13)
 		add_child(headlight)
 
 	var taillight_material := _mat(Color("#b72d31"), 0.36, 0.0)
@@ -83,12 +146,14 @@ func _build_car_body() -> void:
 		taillight_mesh.size = Vector3(0.36, 0.13, 0.06)
 		taillight.mesh = taillight_mesh
 		taillight.material_override = taillight_material
-		taillight.position = Vector3(side * 0.63, 0.42, 2.19)
+		taillight.position = Vector3(side * 0.63, 0.39, 2.17)
 		add_child(taillight)
 
 	var bumper := _mat(Color("#343f46"), 0.54, 0.5)
 	_box(self, Vector3(1.78, 0.13, 0.12), Vector3(0.0, 0.18, -2.20), bumper)
 	_box(self, Vector3(1.78, 0.13, 0.12), Vector3(0.0, 0.18, 2.20), bumper)
+	var grille := _mat(Color("#1b2b32"), 0.48, 0.38)
+	_box(self, Vector3(0.72, 0.18, 0.035), Vector3(0.0, 0.31, -2.19), grille)
 
 func _build_wheels() -> void:
 	for front in [true, false]:
