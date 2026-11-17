@@ -3,6 +3,7 @@ extends Node3D
 const PLAYER_VISUAL_SCRIPT := preload("res://scripts/player_visual.gd")
 const CITY_BUILDER_SCRIPT := preload("res://scripts/city_builder.gd")
 const CAR_SCRIPT := preload("res://scripts/car_controller.gd")
+const MISSION_SCRIPT := preload("res://scripts/mission_manager.gd")
 const HUD_SCRIPT := preload("res://scripts/mobile_hud.gd")
 
 func _ready() -> void:
@@ -11,6 +12,7 @@ func _ready() -> void:
 	_setup_player()
 	_setup_camera()
 	_setup_car()
+	_setup_missions()
 	_setup_hud()
 
 func _setup_environment() -> void:
@@ -76,6 +78,11 @@ func _setup_car() -> void:
 	car.name = "Car"
 	car.position = Vector3(3.0, 0.15, 20.0)
 	add_child(car)
+
+func _setup_missions() -> void:
+	var missions := MISSION_SCRIPT.new()
+	missions.name = "MissionManager"
+	add_child(missions)
 
 func _setup_hud() -> void:
 	var hud := CanvasLayer.new()
