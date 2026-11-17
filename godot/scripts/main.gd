@@ -8,6 +8,7 @@ const WANTED_SCRIPT := preload("res://scripts/wanted_manager.gd")
 const TRAFFIC_SCRIPT := preload("res://scripts/traffic_manager.gd")
 const PEDESTRIAN_SCRIPT := preload("res://scripts/pedestrian_manager.gd")
 const HUD_SCRIPT := preload("res://scripts/mobile_hud.gd")
+const MENU_SCRIPT := preload("res://scripts/main_menu.gd")
 
 func _ready() -> void:
 	_setup_environment()
@@ -110,3 +111,6 @@ func _setup_hud() -> void:
 	var hud := CanvasLayer.new()
 	hud.set_script(HUD_SCRIPT)
 	add_child(hud)
+	var menu := MENU_SCRIPT.new()
+	menu.name = "MainMenu"
+	add_child(menu)
