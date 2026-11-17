@@ -81,18 +81,20 @@ class CityMinimap:
 
 		var center := size * 0.5
 		var map_rect := Rect2(Vector2(EDGE, EDGE), size - Vector2(EDGE * 2.0, EDGE * 2.0))
-		var shoreline_y := center.y + (282.0 - actor.global_position.z) * MAP_SCALE
+		var shoreline_y := center.y + (520.0 - actor.global_position.z) * MAP_SCALE
 		if shoreline_y < map_rect.end.y:
 			var water_start := maxf(map_rect.position.y, shoreline_y)
 			draw_rect(Rect2(Vector2(map_rect.position.x, water_start), Vector2(map_rect.size.x, maxf(0.0, map_rect.end.y - water_start))), Color("#075d75"), true)
 			draw_line(Vector2(map_rect.position.x, shoreline_y), Vector2(map_rect.end.x, shoreline_y), Color("#c9d8c0"), 2.0)
 
-		for road_index in range(-3, 4):
-			var world_coordinate := float(road_index) * 80.0
-			var screen_x := center.x + (world_coordinate - actor.global_position.x) * MAP_SCALE
-			var screen_y := center.y + (world_coordinate - actor.global_position.z) * MAP_SCALE
+		for road_index in range(-7, 8):
+			var world_x := float(road_index) * 80.0
+			var screen_x := center.x + (world_x - actor.global_position.x) * MAP_SCALE
 			if screen_x >= map_rect.position.x and screen_x <= map_rect.end.x:
 				draw_line(Vector2(screen_x, map_rect.position.y), Vector2(screen_x, map_rect.end.y), Color("#b9b7a9"), 3.0)
+		for road_index in range(-5, 6):
+			var world_z := float(road_index) * 80.0
+			var screen_y := center.y + (world_z - actor.global_position.z) * MAP_SCALE
 			if screen_y >= map_rect.position.y and screen_y <= map_rect.end.y:
 				draw_line(Vector2(map_rect.position.x, screen_y), Vector2(map_rect.end.x, screen_y), Color("#b9b7a9"), 3.0)
 
