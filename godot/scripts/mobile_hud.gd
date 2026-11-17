@@ -133,6 +133,11 @@ var last_camera_point := Vector2.ZERO
 var vehicle_button: Button
 var run_button: Button
 var brake_button: Button
+var services_button: Button
+var services_panel: PanelContainer
+var services_status_label: Label
+var engine_upgrade_button: Button
+var paint_button: Button
 
 const CAMERA_SAFE_BOTTOM := 290.0
 const VEHICLE_INTERACTION_DISTANCE := 8.5
@@ -235,6 +240,54 @@ func _build_controls() -> void:
 	cash_label.add_theme_constant_override("outline_size", 5)
 	layer.add_child(cash_label)
 
+	services_button = Button.new()
+	services_button.name = "ServicesButton"
+	services_button.text = "LOJA  /  GARAGEM"
+	services_button.position = Vector2(18.0, 138.0)
+	services_button.size = Vector2(178.0, 42.0)
+	services_button.focus_mode = Control.FOCUS_NONE
+	services_button.pressed.connect(_toggle_services)
+	layer.add_child(services_button)
+
+	services_panel = PanelContainer.new()
+	services_panel.name = "ServicesPanel"
+	services_panel.position = Vector2(18.0, 188.0)
+	services_panel.custom_minimum_size = Vector2(300.0, 188.0)
+	services_panel.visible = false
+	layer.add_child(services_panel)
+
+	var services_layout := VBoxContainer.new()
+	services_layout.add_theme_constant_override("separation", 8)
+	services_panel.add_child(services_layout)
+
+	var services_title := Label.new()
+	services_title.text = "GARAGEM & LOJA"
+	services_title.add_theme_font_size_override("font_size", 18)
+	services_layout.add_child(services_title)
+
+	engine_upgrade_button = Button.new()
+	engine_upgrade_button.text = "MELHORAR MOTOR  •  R$ 700"
+	engine_upgrade_button.custom_minimum_size = Vector2(270.0, 42.0)
+	engine_upgrade_button.pressed.connect(_buy_engine_upgrade)
+	services_layout.add_child(engine_upgrade_button)
+
+	paint_button = Button.new()
+	paint_button.text = "TROCAR PINTURA  •  R$ 150"
+	paint_button.custom_minimum_size = Vector2(270.0, 42.0)
+	paint_button.pressed.connect(_buy_paint)
+	services_layout.add_child(paint_button)
+
+	services_status_label = Label.new()
+	services_status_label.text = "Personalize seu veículo."
+	services_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	services_layout.add_child(services_status_label)
+
+	var close_services := Button.new()
+	close_services.text = "FECHAR"
+	close_services.custom_minimum_size = Vector2(270.0, 36.0)
+	close_services.pressed.connect(func(): services_panel.visible = false)
+	services_layout.add_child(close_services)
+
 	minimap = CityMinimap.new()
 	minimap.name = "CityMinimap"
 	minimap.set_anchors_preset(Control.PRESET_TOP_RIGHT)
@@ -258,6 +311,34 @@ func _process(_delta: float) -> void:
 	vehicle_button.text = "SAIR" if driving else "ENTRAR"
 	run_button.visible = not driving
 	brake_button.visible = driving
+
+func _toggle_services() -> void:
+	services_panel.visible = not services_panel.visible
+	if services_panel.visible and mission_manager != null:
+		engine_upgrade_button.disabled = int(mission_manager.call("get_engine_upgrade_level")) >= 3
+		engine_upgrade_button.text = "MOTOR NO MÁXIMO" if engine_upgrade_button.disabled else "MELHORAR MOTOR  •  R$ 700"
+
+func _buy_engine_upgrade() -> void:
+	if mission_manager == null or car == null:
+		return
+	if bool(mission_manager.call("purchase_engine_upgrade")):
+		mission_manager.call("apply_saved_vehicle", car)
+		services_status_label.text = "Motor melhorado! Nível %d." % int(mission_manager.call("get_engine_upgrade_level"))
+		engine_upgrade_button.disabled = int(mission_manager.call("get_engine_upgrade_level")) >= 3
+		if engine_upgrade_button.disabled:
+			engine_upgrade_button.text = "MOTOR NO MÁXIMO"
+	else:
+		services_status_label.text = "Saldo insuficiente ou motor no máximo."
+
+func _buy_paint() -> void:
+	if mission_manager == null or car == null:
+		return
+	var next_paint := (int(mission_manager.call("get_paint_index")) + 1) % 5
+	if bool(mission_manager.call("purchase_paint", next_paint)):
+		mission_manager.call("apply_saved_vehicle", car)
+		services_status_label.text = "Pintura atualizada e salva na garagem."
+	else:
+		services_status_label.text = "Saldo insuficiente: pintura custa R$ 150."
 
 func _on_move_changed(value: Vector2) -> void:
 	if car != null and bool(car.get("is_driving")):
