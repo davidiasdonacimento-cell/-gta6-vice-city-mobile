@@ -15,10 +15,10 @@ func _build_routes() -> void:
 	for route_index in range(11):
 		var road := float(route_index - 5) * 80.0
 		var route := PackedVector3Array([
-			Vector3(-545.0, 0.0, road + 14.0),
-			Vector3(545.0, 0.0, road + 14.0),
-			Vector3(545.0, 0.0, road - 14.0),
-			Vector3(-545.0, 0.0, road - 14.0)
+			Vector3(-545.0, -0.27, road + 14.0),
+			Vector3(545.0, -0.27, road + 14.0),
+			Vector3(545.0, -0.27, road - 14.0),
+			Vector3(-545.0, -0.27, road - 14.0)
 		])
 		routes.append(route)
 
