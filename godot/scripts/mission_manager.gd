@@ -67,6 +67,7 @@ func _create_marker(index: int) -> void:
 	var marker := Node3D.new()
 	marker.name = "DeliveryMarker_%02d" % (index + 1)
 	marker.position = missions[index]["position"]
+	marker.position.y = -0.27
 	marker.scale = Vector3.ONE if index == current_index else Vector3.ZERO
 	add_child(marker)
 	marker_nodes.append(marker)
