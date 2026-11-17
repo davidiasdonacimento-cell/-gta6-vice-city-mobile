@@ -44,7 +44,7 @@ func _create_marker(index: int) -> void:
 	var marker := Node3D.new()
 	marker.name = "DeliveryMarker_%02d" % (index + 1)
 	marker.position = missions[index]["position"]
-	marker.visible = index == current_index
+	marker.scale = Vector3.ONE if index == current_index else Vector3.ZERO
 	add_child(marker)
 	marker_nodes.append(marker)
 
@@ -116,12 +116,12 @@ func _complete_current_mission() -> void:
 		return
 	var completed: Dictionary = missions[current_index]
 	cash += int(completed["reward"])
-	marker_nodes[current_index].visible = false
+	marker_nodes[current_index].scale = Vector3.ZERO
 	current_index += 1
 	_update_status()
 
 	if current_index < missions.size():
-		marker_nodes[current_index].visible = true
+		marker_nodes[current_index].scale = Vector3.ONE
 
 func _update_status() -> void:
 	if current_index < missions.size():
