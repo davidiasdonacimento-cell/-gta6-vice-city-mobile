@@ -54,7 +54,7 @@ func _build_island_and_ocean() -> void:
 	var island := MeshInstance3D.new()
 	island.name = "CoastalLand"
 	var land_mesh := PlaneMesh.new()
-	land_mesh.size = Vector2(CITY_SPAN + 80.0, CITY_DEPTH + 80.0)
+	land_mesh.size = Vector2(CITY_SPAN + 80.0, CITY_DEPTH + 200.0)
 	island.mesh = land_mesh
 	island.position.y = -0.55
 	island.material_override = _mat(Color("#927f67"), 1.0)
@@ -73,7 +73,7 @@ func _build_island_and_ocean() -> void:
 	ground_body.name = "GroundCollision"
 	var ground_shape := CollisionShape3D.new()
 	var ground_box := BoxShape3D.new()
-	ground_box.size = Vector3(CITY_SPAN + 80.0, 0.5, CITY_DEPTH + 80.0)
+	ground_box.size = Vector3(CITY_SPAN + 80.0, 0.5, CITY_DEPTH + 200.0)
 	ground_shape.shape = ground_box
 	ground_shape.position.y = -0.52
 	ground_body.add_child(ground_shape)
