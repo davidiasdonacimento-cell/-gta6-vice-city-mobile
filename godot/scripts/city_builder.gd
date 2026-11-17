@@ -327,7 +327,7 @@ func _build_asset_parks() -> void:
 			var tree := imported_tree_models[source_index].duplicate()
 			var tree_root := Node3D.new()
 			tree_root.name = "QuaterniusCC0Tree"
-			tree_root.position = Vector3(center.x + radial.x, 0.0, center.y + radial.y)
+			tree_root.position = Vector3(center.x + radial.x, -0.255, center.y + radial.y)
 			tree_root.rotation.y = rng.randf_range(0.0, TAU)
 			var tree_scale := rng.randf_range(0.92, 1.18)
 			tree_root.scale = Vector3.ONE * tree_scale
@@ -339,7 +339,7 @@ func _build_asset_parks() -> void:
 				bush.name = "QuaterniusCC0Bush"
 				var offset_x := -15.0 if bush_index % 2 == 0 else 15.0
 				var offset_z := -15.0 if bush_index < 2 else 15.0
-				bush.position = Vector3(center.x + offset_x, 0.0, center.y + offset_z)
+				bush.position = Vector3(center.x + offset_x, -0.255, center.y + offset_z)
 				bush.scale = Vector3.ONE * 1.25
 				bush.add_child(imported_bush_model.duplicate())
 				add_child(bush)
