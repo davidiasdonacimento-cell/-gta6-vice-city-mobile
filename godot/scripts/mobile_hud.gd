@@ -123,6 +123,8 @@ var player: CharacterBody3D
 var car: Node3D
 var minimap: CityMinimap
 var mission_manager: Node
+var wanted_manager: Node
+var wanted_label: Label
 var mission_label: Label
 var cash_label: Label
 var camera_pivot: Node3D
@@ -139,6 +141,7 @@ func _ready() -> void:
 	player = get_parent().get_node("Player") as CharacterBody3D
 	car = get_parent().get_node_or_null("Car")
 	mission_manager = get_parent().get_node_or_null("MissionManager")
+	wanted_manager = get_parent().get_node_or_null("WantedManager")
 	camera_pivot = player.get_node("CameraPivot")
 	_build_controls()
 
@@ -202,6 +205,16 @@ func _build_controls() -> void:
 	hint.add_theme_font_size_override("font_size", 16)
 	layer.add_child(hint)
 
+	wanted_label = Label.new()
+	wanted_label.name = "WantedStatus"
+	wanted_label.position = Vector2(18.0, 104.0)
+	wanted_label.size = Vector2(360.0, 30.0)
+	wanted_label.add_theme_font_size_override("font_size", 18)
+	wanted_label.add_theme_color_override("font_color", Color("#ffd166"))
+	wanted_label.add_theme_color_override("font_outline_color", Color("#132b35"))
+	wanted_label.add_theme_constant_override("outline_size", 5)
+	layer.add_child(wanted_label)
+
 	mission_label = Label.new()
 	mission_label.name = "MissionStatus"
 	mission_label.position = Vector2(18.0, 48.0)
@@ -235,6 +248,8 @@ func _process(_delta: float) -> void:
 	if mission_manager != null:
 		mission_label.text = "MISSÃO  %s" % str(mission_manager.get("status_text"))
 		cash_label.text = "SALDO  R$ %d" % int(mission_manager.call("get_cash"))
+	if wanted_manager != null:
+		wanted_label.text = str(wanted_manager.call("get_stars_text"))
 	if car == null or player == null:
 		return
 	var driving := bool(car.get("is_driving"))
