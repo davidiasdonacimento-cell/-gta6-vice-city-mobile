@@ -12,7 +12,7 @@ var missions: Array[Dictionary] = [
 	{
 		"title": "Entrega na Marina",
 		"detail": "Leve a encomenda até a orla",
-		"position": Vector3(0.0, 0.0, 242.0),
+		"position": Vector3(0.0, 0.0, 500.0),
 		"reward": 350
 	},
 	{
