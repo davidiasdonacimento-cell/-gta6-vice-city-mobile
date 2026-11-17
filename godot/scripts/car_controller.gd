@@ -275,3 +275,15 @@ func _physics_process(_delta: float) -> void:
 
 	driver.global_position = global_position + Vector3(0.0, 0.82, 0.0)
 	driver.global_rotation.y = global_rotation.y
+
+func apply_garage(upgrade_level: int, paint_index: int) -> void:
+	var paint_palette: Array[Color] = [
+		Color("#c95c43"),
+		Color("#287b9b"),
+		Color("#e1bd65"),
+		Color("#e4e5df"),
+		Color("#4b7566")
+	]
+	engine_power = 1450.0 + float(clampi(upgrade_level, 0, 3)) * 220.0
+	if _body_material != null:
+		_body_material.albedo_color = paint_palette[posmod(paint_index, paint_palette.size())]
