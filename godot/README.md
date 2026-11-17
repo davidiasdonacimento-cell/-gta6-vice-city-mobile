@@ -11,7 +11,7 @@ Open this `godot/` folder in Godot 4.4 or newer. The main scene is `scenes/main.
 - Third-person player controller with keyboard and touch input.
 - Touch joystick on the bottom-left and camera drag on the right.
 - Procedural articulated player visual with idle/walk/run movement.
-- First coastal district with road grid, lane markings, sidewalks, Art-Deco-inspired towers, promenade, beach, palms and street furniture.
+- Expanded coastal district measuring about 1.12 km × 0.96 km, with 15 north-south roads, 11 east-west roads, 120 city blocks, Art-Deco-inspired towers, promenade, beach, palms and street furniture.
 - Six small parks with real CC0 Quaternius tree and shrub GLB models, benches and paths.
 - Twelve lightweight traffic vehicles moving along the road grid.
 - Fourteen lightweight pedestrians following sidewalk routes.
@@ -25,7 +25,7 @@ Open this `godot/` folder in Godot 4.4 or newer. The main scene is `scenes/main.
 - Web and Android export presets, plus a GitHub Actions workflow intended to validate the project and export a browser build.
 
 ## Important scope and limitations
-This is an early game slice, not a finished GTA-scale open-world game. The current district is a compact first area, not a massive map. The player, pedestrians, traffic and police visuals are procedural stand-ins, not final motion-captured or production-quality character assets. Traffic follows simple fixed road routes; pedestrians follow simple sidewalk loops; police pursuit is a basic direct-follow system. There is no full campaign, combat system, functional building interiors, advanced NPC schedules, vehicle dealership, multiplayer, or save slots yet.
+This is an early game slice, not a finished GTA-scale open-world game. The current district is a larger first region, but it is still only one region and not a massive multi-city map. The player, pedestrians, traffic and police visuals are procedural stand-ins, not final motion-captured or production-quality character assets. Traffic follows simple fixed road routes; pedestrians follow simple sidewalk loops; police pursuit is a basic direct-follow system. There is no full campaign, combat system, functional building interiors, advanced NPC schedules, vehicle dealership, multiplayer, or save slots yet.
 
 The project has not yet been successfully run in the Godot editor or tested on an Android device in this work session. The target of 60 FPS on entry-level phones is a performance goal, not a measured result. No APK or hosted Web build should be considered ready until CI/export and device/browser tests pass.
 
