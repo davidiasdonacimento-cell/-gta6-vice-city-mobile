@@ -9,9 +9,11 @@ const TRAFFIC_SCRIPT := preload("res://scripts/traffic_manager.gd")
 const PEDESTRIAN_SCRIPT := preload("res://scripts/pedestrian_manager.gd")
 const HUD_SCRIPT := preload("res://scripts/mobile_hud.gd")
 const MENU_SCRIPT := preload("res://scripts/main_menu.gd")
+const WORLD_CLOCK_SCRIPT := preload("res://scripts/world_clock.gd")
 
 func _ready() -> void:
 	_setup_environment()
+	_setup_world_clock()
 	_build_city()
 	_setup_player()
 	_setup_camera()
@@ -42,6 +44,11 @@ func _setup_environment() -> void:
 		world.name = "WorldEnvironment"
 		add_child(world)
 	world.environment = env
+
+func _setup_world_clock() -> void:
+	var clock := WORLD_CLOCK_SCRIPT.new()
+	clock.name = "WorldClock"
+	add_child(clock)
 
 func _build_city() -> void:
 	var city := CITY_BUILDER_SCRIPT.new()
