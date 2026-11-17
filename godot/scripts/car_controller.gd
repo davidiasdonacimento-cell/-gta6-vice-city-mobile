@@ -139,6 +139,9 @@ func enter_vehicle(actor: CharacterBody3D) -> void:
 	mobile_brake = false
 	driver.set("mobile_direction", Vector2.ZERO)
 	driver.set_physics_process(false)
+	var driver_collision := driver.get_node_or_null("CollisionShape3D") as CollisionShape3D
+	if driver_collision:
+		driver_collision.set_deferred("disabled", true)
 	var visual := driver.get_node_or_null("Visual")
 	if visual:
 		visual.visible = false
@@ -154,6 +157,9 @@ func exit_vehicle() -> void:
 	driver.global_rotation.y = global_rotation.y
 	driver.velocity = linear_velocity * 0.25
 	driver.set_physics_process(true)
+	var driver_collision := driver.get_node_or_null("CollisionShape3D") as CollisionShape3D
+	if driver_collision:
+		driver_collision.set_deferred("disabled", false)
 	var visual := driver.get_node_or_null("Visual")
 	if visual:
 		visual.visible = true
@@ -181,7 +187,7 @@ func _physics_process(_delta: float) -> void:
 		engine_force = throttle * engine_power
 	else:
 		engine_force = throttle * reverse_power
-	brake = brake_power if mobile_brake else 0.0
+	brake = brake_power if mobile_brake or Input.is_action_pressed("vehicle_brake") else 0.0
 	steering = move_toward(steering, steer_input * max_steering, 0.07)
 
 	driver.global_position = global_position + Vector3(0.0, 0.82, 0.0)
