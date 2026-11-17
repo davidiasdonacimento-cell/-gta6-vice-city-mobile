@@ -5,6 +5,8 @@ const CITY_BUILDER_SCRIPT := preload("res://scripts/city_builder.gd")
 const CAR_SCRIPT := preload("res://scripts/car_controller.gd")
 const MISSION_SCRIPT := preload("res://scripts/mission_manager.gd")
 const WANTED_SCRIPT := preload("res://scripts/wanted_manager.gd")
+const TRAFFIC_SCRIPT := preload("res://scripts/traffic_manager.gd")
+const PEDESTRIAN_SCRIPT := preload("res://scripts/pedestrian_manager.gd")
 const HUD_SCRIPT := preload("res://scripts/mobile_hud.gd")
 
 func _ready() -> void:
@@ -15,6 +17,8 @@ func _ready() -> void:
 	_setup_car()
 	_setup_missions()
 	_setup_wanted()
+	_setup_traffic()
+	_setup_pedestrians()
 	_setup_hud()
 
 func _setup_environment() -> void:
@@ -90,6 +94,16 @@ func _setup_wanted() -> void:
 	var wanted := WANTED_SCRIPT.new()
 	wanted.name = "WantedManager"
 	add_child(wanted)
+
+func _setup_traffic() -> void:
+	var traffic := TRAFFIC_SCRIPT.new()
+	traffic.name = "TrafficManager"
+	add_child(traffic)
+
+func _setup_pedestrians() -> void:
+	var pedestrians := PEDESTRIAN_SCRIPT.new()
+	pedestrians.name = "PedestrianManager"
+	add_child(pedestrians)
 
 func _setup_hud() -> void:
 	var hud := CanvasLayer.new()
