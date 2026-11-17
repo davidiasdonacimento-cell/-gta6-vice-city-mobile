@@ -133,6 +133,10 @@ func _update_police(delta: float) -> void:
 			if beacon is MeshInstance3D and beacon.mesh is SphereMesh:
 				beacon.scale = Vector3.ONE * (0.82 + pulse * 0.28)
 
+func add_heat(amount: float) -> void:
+	heat = clampf(heat + maxf(0.0, amount), 0.0, MAX_HEAT)
+	_update_wanted_level()
+
 func get_wanted_level() -> int:
 	return wanted_level
 
