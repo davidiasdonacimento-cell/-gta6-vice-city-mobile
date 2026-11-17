@@ -89,6 +89,7 @@ func _setup_missions() -> void:
 	var missions := MISSION_SCRIPT.new()
 	missions.name = "MissionManager"
 	add_child(missions)
+	missions.call("apply_saved_vehicle", get_node_or_null("Car"))
 
 func _setup_wanted() -> void:
 	var wanted := WANTED_SCRIPT.new()
