@@ -28,8 +28,10 @@ var missions: Array[Dictionary] = [
 ]
 
 var _marker_material: StandardMaterial3D
+const SAVE_PATH := "user://vice_city_save.cfg"
 
 func _ready() -> void:
+	_load_progress()
 	_marker_material = StandardMaterial3D.new()
 	_marker_material.albedo_color = Color("#ffd166")
 	_marker_material.emission_enabled = true
@@ -39,6 +41,21 @@ func _ready() -> void:
 	for index in range(missions.size()):
 		_create_marker(index)
 	_update_status()
+
+func _load_progress() -> void:
+	var save := ConfigFile.new()
+	if save.load(SAVE_PATH) != OK:
+		return
+	cash = maxi(0, int(save.get_value("progress", "cash", 0)))
+	current_index = clampi(int(save.get_value("progress", "mission_index", 0)), 0, missions.size())
+
+func _save_progress() -> void:
+	var save := ConfigFile.new()
+	save.set_value("progress", "cash", cash)
+	save.set_value("progress", "mission_index", current_index)
+	var result := save.save(SAVE_PATH)
+	if result != OK:
+		push_warning("Could not save Vice City progress: " + error_string(result))
 
 func _create_marker(index: int) -> void:
 	var marker := Node3D.new()
@@ -118,6 +135,7 @@ func _complete_current_mission() -> void:
 	cash += int(completed["reward"])
 	marker_nodes[current_index].scale = Vector3.ZERO
 	current_index += 1
+	_save_progress()
 	_update_status()
 
 	if current_index < missions.size():
