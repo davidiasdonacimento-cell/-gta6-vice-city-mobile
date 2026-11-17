@@ -17,6 +17,7 @@ Open this `godot/` folder in Godot 4.4 or newer. The main scene is `scenes/main.
 - Fourteen lightweight pedestrians following sidewalk routes.
 - One drivable car with curved custom mesh body, four suspension wheels, keyboard/touch steering, throttle, brake, and enter/exit interaction.
 - Five-level wanted heat meter, triggered by high-speed driving and traffic impacts, with simple police pursuit units.
+- Dynamic day/night cycle with changing sunlight, ambient lighting, sky colors and an in-game clock.
 - Three non-combat delivery missions with glowing waypoints and cash rewards.
 - Persistent mission progress, cash, engine upgrades and vehicle paint.
 - In-game shop/garage panel for engine upgrades and paint purchases.
