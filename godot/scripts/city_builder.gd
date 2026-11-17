@@ -1,7 +1,8 @@
 extends Node3D
 class_name ViceCityDistrictBuilder
 
-const CITY_SPAN := 560.0
+const CITY_SPAN := 1120.0
+const CITY_DEPTH := 960.0
 const ROAD_WIDTH := 18.0
 const ROAD_STEP := 80.0
 
@@ -53,7 +54,7 @@ func _build_island_and_ocean() -> void:
 	var island := MeshInstance3D.new()
 	island.name = "CoastalLand"
 	var land_mesh := PlaneMesh.new()
-	land_mesh.size = Vector2(CITY_SPAN + 80.0, CITY_SPAN + 80.0)
+	land_mesh.size = Vector2(CITY_SPAN + 80.0, CITY_DEPTH + 80.0)
 	island.mesh = land_mesh
 	island.position.y = -0.55
 	island.material_override = _mat(Color("#927f67"), 1.0)
@@ -65,39 +66,42 @@ func _build_island_and_ocean() -> void:
 	water_mesh.size = Vector2(2600.0, 2600.0)
 	ocean.mesh = water_mesh
 	ocean.position.y = -0.72
-	var water := _mat(Color("#08728a"), 0.2, 0.22)
-	ocean.material_override = water
+	ocean.material_override = _mat(Color("#08728a"), 0.2, 0.22)
 	add_child(ocean)
 
 	var ground_body := StaticBody3D.new()
 	ground_body.name = "GroundCollision"
 	var ground_shape := CollisionShape3D.new()
 	var ground_box := BoxShape3D.new()
-	ground_box.size = Vector3(CITY_SPAN + 80.0, 0.5, CITY_SPAN + 80.0)
+	ground_box.size = Vector3(CITY_SPAN + 80.0, 0.5, CITY_DEPTH + 80.0)
 	ground_shape.shape = ground_box
 	ground_shape.position.y = -0.52
 	ground_body.add_child(ground_shape)
 	add_child(ground_body)
 
 func _build_roads() -> void:
-	for road_index in range(-3, 4):
+	for road_index in range(-5, 6):
 		var coordinate := float(road_index) * ROAD_STEP
 		_add_plane("Road_EW_%s" % road_index, Vector2(CITY_SPAN, ROAD_WIDTH), Vector3(0, -0.27, coordinate), asphalt)
-		_add_plane("Road_NS_%s" % road_index, Vector2(ROAD_WIDTH, CITY_SPAN), Vector3(coordinate, -0.265, 0), asphalt)
-
 		for side in [-1.0, 1.0]:
 			var verge := side * (ROAD_WIDTH * 0.5 + 2.2)
 			_add_plane("Sidewalk_EW", Vector2(CITY_SPAN, 4.4), Vector3(0, -0.20, coordinate + verge), sidewalk)
-			_add_plane("Sidewalk_NS", Vector2(4.4, CITY_SPAN), Vector3(coordinate + verge, -0.20, 0), sidewalk)
-
-		for dash_index in range(0, 10):
+		for dash_index in range(20):
 			var dash_x := -CITY_SPAN * 0.5 + 12.0 + float(dash_index) * 56.0
 			_add_plane("LaneDash_EW", Vector2(10.0, 0.20), Vector3(dash_x, -0.245, coordinate), lane_paint)
-			var dash_z := -CITY_SPAN * 0.5 + 12.0 + float(dash_index) * 56.0
+
+	for road_index in range(-7, 8):
+		var coordinate := float(road_index) * ROAD_STEP
+		_add_plane("Road_NS_%s" % road_index, Vector2(ROAD_WIDTH, CITY_DEPTH), Vector3(coordinate, -0.265, 0), asphalt)
+		for side in [-1.0, 1.0]:
+			var verge := side * (ROAD_WIDTH * 0.5 + 2.2)
+			_add_plane("Sidewalk_NS", Vector2(4.4, CITY_DEPTH), Vector3(coordinate + verge, -0.20, 0), sidewalk)
+		for dash_index in range(17):
+			var dash_z := -CITY_DEPTH * 0.5 + 12.0 + float(dash_index) * 56.0
 			_add_plane("LaneDash_NS", Vector2(0.20, 10.0), Vector3(coordinate, -0.24, dash_z), lane_paint)
 
 	_add_plane("MainBoulevard_Median", Vector2(CITY_SPAN, 1.2), Vector3(0, -0.235, 0), _mat(Color("#d4be88"), 0.8))
-	_add_plane("CentralBoulevard_Median", Vector2(1.2, CITY_SPAN), Vector3(0, -0.235, 0), _mat(Color("#d4be88"), 0.8))
+	_add_plane("CentralBoulevard_Median", Vector2(1.2, CITY_DEPTH), Vector3(0, -0.235, 0), _mat(Color("#d4be88"), 0.8))
 
 func _add_plane(node_name: String, dimensions: Vector2, location: Vector3, material: Material) -> void:
 	var instance := MeshInstance3D.new()
@@ -119,19 +123,19 @@ func _build_city_blocks() -> void:
 		Color("#e1d2b7"),
 		Color("#c49a82")
 	]
-	for block_x in range(6):
-		for block_z in range(6):
-			var center_x := -200.0 + float(block_x) * ROAD_STEP
-			var center_z := -200.0 + float(block_z) * ROAD_STEP
-			if (block_x + block_z) % 6 == 0:
+	for block_x in range(12):
+		for block_z in range(10):
+			var center_x := -440.0 + float(block_x) * ROAD_STEP
+			var center_z := -360.0 + float(block_z) * ROAD_STEP
+			if (block_x + block_z) % 9 == 0:
 				continue
-			var count := 2 if block_x in [2, 3] and block_z in [2, 3] else 1
+			var count := 2 if block_x in [5, 6] and block_z in [4, 5] else 1
 			for slot in range(count):
 				var offset_x := -13.5 if slot == 0 and count == 2 else (13.5 if count == 2 else 0.0)
 				var offset_z := rng.randf_range(-8.0, 8.0)
 				var radius := rng.randf_range(7.5, 11.5)
 				var height := rng.randf_range(20.0, 60.0)
-				if block_x in [2, 3] and block_z in [2, 3]:
+				if block_x in [5, 6] and block_z in [4, 5]:
 					height += rng.randf_range(8.0, 24.0)
 				var facade: Color = facades[rng.randi_range(0, facades.size() - 1)]
 				_create_tower(Vector3(center_x + offset_x, 0.0, center_z + offset_z), radius, height, facade, rng.randi_range(0, 3))
@@ -210,23 +214,23 @@ func _add_shop_sign(parent: Node3D, radius: float, height: float, facade_color: 
 
 func _build_waterfront() -> void:
 	var promenade := _mat(Color("#d9c8a6"), 0.8)
-	_add_plane("OceanPromenade", Vector2(620.0, 14.0), Vector3(0, -0.16, 282.0), promenade)
-	_add_plane("BeachSand", Vector2(620.0, 30.0), Vector3(0, -0.25, 305.0), _mat(Color("#d8bd8b"), 1.0))
-	_add_plane("MarinaPier", Vector2(96.0, 5.0), Vector3(160.0, 0.0, 326.0), _mat(Color("#9c7957"), 0.9))
-	for pier_x in [-270.0, -180.0, -90.0, 0.0, 90.0, 180.0, 270.0]:
-		_add_plane("WaterfrontPaving", Vector2(2.4, 11.0), Vector3(pier_x, -0.08, 282.0), promenade)
+	_add_plane("OceanPromenade", Vector2(CITY_SPAN + 80.0, 14.0), Vector3(0, -0.16, 520.0), promenade)
+	_add_plane("BeachSand", Vector2(CITY_SPAN + 80.0, 30.0), Vector3(0, -0.25, 545.0), _mat(Color("#d8bd8b"), 1.0))
+	_add_plane("MarinaPier", Vector2(96.0, 5.0), Vector3(160.0, 0.0, 566.0), _mat(Color("#9c7957"), 0.9))
+	for pier_x in range(-520, 521, 80):
+		_add_plane("WaterfrontPaving", Vector2(2.4, 11.0), Vector3(float(pier_x), -0.08, 520.0), promenade)
 
 func _build_palms() -> void:
 	var locations: Array[Vector3] = []
-	for road_index in [-2, 0, 2]:
+	for road_index in [-4, -2, 0, 2, 4]:
 		var coordinate := float(road_index) * ROAD_STEP
-		for step in range(0, 5):
-			var along := -160.0 + float(step) * 80.0
+		for step in range(-6, 7):
+			var along := float(step) * 80.0
 			locations.append(Vector3(along, 0.0, coordinate + 14.5))
 			if road_index == 0:
 				locations.append(Vector3(coordinate + 14.5, 0.0, along))
-	for beach_index in range(0, 10):
-		locations.append(Vector3(-225.0 + float(beach_index) * 50.0, 0.0, 276.0))
+	for beach_index in range(0, 22):
+		locations.append(Vector3(-500.0 + float(beach_index) * 48.0, 0.0, 514.0))
 	_create_palm_multimeshes(locations)
 
 func _create_palm_multimeshes(locations: Array[Vector3]) -> void:
