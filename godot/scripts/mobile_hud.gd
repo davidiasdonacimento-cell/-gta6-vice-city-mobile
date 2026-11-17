@@ -53,6 +53,7 @@ class CityMinimap:
 
 	var actor: Node3D
 	var vehicle: Node3D
+	var mission_manager: Node
 	var refresh_clock := 0.0
 	const MAP_SCALE := 0.22
 	const EDGE := 9.0
@@ -100,6 +101,14 @@ class CityMinimap:
 			if map_rect.has_point(vehicle_point):
 				draw_circle(vehicle_point, 4.0, Color("#f4c65e"))
 
+		if mission_manager != null and bool(mission_manager.call("has_active_mission")):
+			var mission_target: Vector3 = mission_manager.call("get_current_target")
+			var target_point := _map_point(mission_target)
+			if map_rect.has_point(target_point):
+				draw_line(center, target_point, Color("#ffd166"), 2.0)
+				draw_circle(target_point, 5.5, Color("#ffd166"))
+				draw_arc(target_point, 8.0, 0.0, TAU, 36, Color("#ffe8a8"), 1.5, true)
+
 		var forward := Vector2(-sin(actor.global_rotation.y), -cos(actor.global_rotation.y))
 		var side := Vector2(-forward.y, forward.x)
 		var tip := center + forward * 12.0
@@ -113,6 +122,9 @@ class CityMinimap:
 var player: CharacterBody3D
 var car: Node3D
 var minimap: CityMinimap
+var mission_manager: Node
+var mission_label: Label
+var cash_label: Label
 var camera_pivot: Node3D
 var camera_drag_id := -1
 var last_camera_point := Vector2.ZERO
@@ -126,6 +138,7 @@ const VEHICLE_INTERACTION_DISTANCE := 8.5
 func _ready() -> void:
 	player = get_parent().get_node("Player") as CharacterBody3D
 	car = get_parent().get_node_or_null("Car")
+	mission_manager = get_parent().get_node_or_null("MissionManager")
 	camera_pivot = player.get_node("CameraPivot")
 	_build_controls()
 
@@ -189,15 +202,39 @@ func _build_controls() -> void:
 	hint.add_theme_font_size_override("font_size", 16)
 	layer.add_child(hint)
 
+	mission_label = Label.new()
+	mission_label.name = "MissionStatus"
+	mission_label.position = Vector2(18.0, 48.0)
+	mission_label.size = Vector2(500.0, 50.0)
+	mission_label.add_theme_font_size_override("font_size", 16)
+	mission_label.add_theme_color_override("font_color", Color("#ffe0a6"))
+	mission_label.add_theme_color_override("font_outline_color", Color("#132b35"))
+	mission_label.add_theme_constant_override("outline_size", 5)
+	layer.add_child(mission_label)
+
+	cash_label = Label.new()
+	cash_label.name = "CashStatus"
+	cash_label.position = Vector2(18.0, 76.0)
+	cash_label.size = Vector2(260.0, 28.0)
+	cash_label.add_theme_font_size_override("font_size", 15)
+	cash_label.add_theme_color_override("font_color", Color("#b9edc5"))
+	cash_label.add_theme_color_override("font_outline_color", Color("#132b35"))
+	cash_label.add_theme_constant_override("outline_size", 5)
+	layer.add_child(cash_label)
+
 	minimap = CityMinimap.new()
 	minimap.name = "CityMinimap"
 	minimap.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	minimap.position = Vector2(-194.0, 20.0)
 	minimap.actor = player
 	minimap.vehicle = car
+	minimap.mission_manager = mission_manager
 	layer.add_child(minimap)
 
 func _process(_delta: float) -> void:
+	if mission_manager != null:
+		mission_label.text = "MISSÃO  %s" % str(mission_manager.get("status_text"))
+		cash_label.text = "SALDO  R$ %d" % int(mission_manager.call("get_cash"))
 	if car == null or player == null:
 		return
 	var driving := bool(car.get("is_driving"))
