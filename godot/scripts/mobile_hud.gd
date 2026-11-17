@@ -124,7 +124,9 @@ var car: Node3D
 var minimap: CityMinimap
 var mission_manager: Node
 var wanted_manager: Node
+var world_clock: Node
 var wanted_label: Label
+var clock_label: Label
 var mission_label: Label
 var cash_label: Label
 var camera_pivot: Node3D
@@ -147,6 +149,7 @@ func _ready() -> void:
 	car = get_parent().get_node_or_null("Car")
 	mission_manager = get_parent().get_node_or_null("MissionManager")
 	wanted_manager = get_parent().get_node_or_null("WantedManager")
+	world_clock = get_parent().get_node_or_null("WorldClock")
 	camera_pivot = player.get_node("CameraPivot")
 	_build_controls()
 
@@ -288,6 +291,18 @@ func _build_controls() -> void:
 	close_services.pressed.connect(func(): services_panel.visible = false)
 	services_layout.add_child(close_services)
 
+	clock_label = Label.new()
+	clock_label.name = "ClockStatus"
+	clock_label.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	clock_label.position = Vector2(-194.0, 0.0)
+	clock_label.size = Vector2(178.0, 24.0)
+	clock_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	clock_label.add_theme_font_size_override("font_size", 16)
+	clock_label.add_theme_color_override("font_color", Color("#ffe0a6"))
+	clock_label.add_theme_color_override("font_outline_color", Color("#132b35"))
+	clock_label.add_theme_constant_override("outline_size", 4)
+	layer.add_child(clock_label)
+
 	minimap = CityMinimap.new()
 	minimap.name = "CityMinimap"
 	minimap.set_anchors_preset(Control.PRESET_TOP_RIGHT)
@@ -303,6 +318,8 @@ func _process(_delta: float) -> void:
 		cash_label.text = "SALDO  R$ %d" % int(mission_manager.call("get_cash"))
 	if wanted_manager != null:
 		wanted_label.text = str(wanted_manager.call("get_stars_text"))
+	if world_clock != null:
+		clock_label.text = "VICE CITY  •  " + str(world_clock.call("get_clock_text"))
 	if car == null or player == null:
 		return
 	var driving := bool(car.get("is_driving"))
