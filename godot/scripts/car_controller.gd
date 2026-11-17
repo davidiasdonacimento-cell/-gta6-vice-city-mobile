@@ -86,11 +86,29 @@ func _add_loft_hull(parent: Node3D, node_name: String, sections: Array, material
 			var c := next_section[next_point]
 			var d := next_section[point_index]
 			surface.add_vertex(a)
+			surface.add_vertex(c)
 			surface.add_vertex(b)
-			surface.add_vertex(c)
 			surface.add_vertex(a)
-			surface.add_vertex(c)
 			surface.add_vertex(d)
+			surface.add_vertex(c)
+
+	for endpoint in [0, loops.size() - 1]:
+		var section := loops[endpoint]
+		var center_y := 0.0
+		for point in section:
+			center_y += point.y
+		center_y /= float(section.size())
+		var center := Vector3(0.0, center_y, section[0].z)
+		for point_index in range(section.size()):
+			var next_point := (point_index + 1) % section.size()
+			if endpoint == 0:
+				surface.add_vertex(center)
+				surface.add_vertex(section[next_point])
+				surface.add_vertex(section[point_index])
+			else:
+				surface.add_vertex(center)
+				surface.add_vertex(section[point_index])
+				surface.add_vertex(section[next_point])
 	surface.generate_normals()
 
 	var hull := MeshInstance3D.new()
