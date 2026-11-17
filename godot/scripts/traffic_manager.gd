@@ -16,8 +16,8 @@ func _spawn_traffic() -> void:
 		car.name = "TrafficCar_%02d" % index
 		var horizontal := index % 2 == 0
 		var road := road_indices[(index * 3 + 1) % road_indices.size()]
-		var lane := lanes[(index / 2) % 2]
-		var direction := 1.0 if (index / 4) % 2 == 0 else -1.0
+		var lane := lanes[floori(float(index) / 2.0) % 2]
+		var direction := 1.0 if floori(float(index) / 4.0) % 2 == 0 else -1.0
 		if horizontal:
 			car.travel_axis = Vector3.RIGHT
 			car.travel_sign = direction
