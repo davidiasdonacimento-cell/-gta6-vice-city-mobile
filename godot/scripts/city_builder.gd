@@ -55,7 +55,7 @@ func _build_island_and_ocean() -> void:
 	var land_mesh := PlaneMesh.new()
 	land_mesh.size = Vector2(CITY_SPAN + 80.0, CITY_SPAN + 80.0)
 	island.mesh = land_mesh
-	island.position.y = -0.27
+	island.position.y = -0.55
 	island.material_override = _mat(Color("#927f67"), 1.0)
 	add_child(island)
 
